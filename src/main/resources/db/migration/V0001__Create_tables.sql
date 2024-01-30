@@ -33,7 +33,7 @@ CREATE TABLE permission
 
 CREATE TABLE product
 (
-    id_product_ext integer NOT NULL,	-- Внешний идентификатор продукта из MyProduct
+    id integer NOT NULL,	-- Внешний идентификатор продукта из MyProduct
     name varchar(250) NOT NULL,	-- Имя продукта
     alias varchar(50) NOT NULL	-- Алиас (код) продукта
 );
