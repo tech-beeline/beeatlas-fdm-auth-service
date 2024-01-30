@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS role CASCADE;
 
 DROP TABLE IF EXISTS role_permissions CASCADE;
 
-DROP TABLE IF EXISTS user_product_ext CASCADE;
+DROP TABLE IF EXISTS user_product CASCADE;
 
 DROP TABLE IF EXISTS user_profile CASCADE;
 
@@ -55,11 +55,11 @@ CREATE TABLE role_permissions
     id_role integer NOT NULL	-- Идентификатор роли
 );
 
-CREATE TABLE user_product_ext
+CREATE TABLE user_product
 (
     id_rec integer NOT NULL,	-- идентификатор записи, первичный ключ
     id_profile integer NULL,	-- идентификатор пользователя,, внешний ключ
-    id_product_ext integer NULL	-- Идентификатор продукта, внешний ключ
+    id_product integer NULL	-- Идентификатор продукта, внешний ключ
 );
 
 CREATE TABLE user_profile
@@ -88,7 +88,7 @@ ALTER TABLE permission
     ADD CONSTRAINT "UI_Premission_Alias" UNIQUE (alias);
 
 ALTER TABLE product ADD CONSTRAINT "PK_Product"
-    PRIMARY KEY (id_product_ext);
+    PRIMARY KEY (id);
 
 ALTER TABLE role ADD CONSTRAINT "PK_Role"
     PRIMARY KEY (id)
@@ -104,12 +104,12 @@ CREATE INDEX "IXFK_RolePermissions_Permission" ON role_permissions (id_permissio
 
 CREATE INDEX "IXFK_RolePermissions_Role" ON role_permissions (id_role ASC);
 
-ALTER TABLE user_product_ext ADD CONSTRAINT "PK_UserProductRolesExt"
+ALTER TABLE user_product ADD CONSTRAINT "PK_UserProductRolesExt"
     PRIMARY KEY (id_rec);
 
-CREATE INDEX "IXFK_UserProductRolesExt_Product" ON user_product_ext (id_product_ext ASC);
+CREATE INDEX "IXFK_UserProductRolesExt_Product" ON user_product (id_product ASC);
 
-CREATE INDEX "IXFK_UserProductRolesExt_UserProfile" ON user_product_ext (id_profile ASC);
+CREATE INDEX "IXFK_UserProductRolesExt_UserProfile" ON user_product (id_profile ASC);
 
 ALTER TABLE user_profile ADD CONSTRAINT "PK_UserProfile"
     PRIMARY KEY (id);
@@ -132,10 +132,10 @@ ALTER TABLE role_permissions ADD CONSTRAINT "FK_RolePermissions_Permission"
 ALTER TABLE role_permissions ADD CONSTRAINT "FK_RolePermissions_Role"
     FOREIGN KEY (id_role) REFERENCES role (id) ON DELETE No Action ON UPDATE No Action;
 
-ALTER TABLE user_product_ext ADD CONSTRAINT "FK_UserProductRolesExt_Product"
-    FOREIGN KEY (id_product_ext) REFERENCES product (id_product_ext) ON DELETE No Action ON UPDATE No Action;
+ALTER TABLE user_product ADD CONSTRAINT "FK_UserProductRolesExt_Product"
+    FOREIGN KEY (id_product) REFERENCES product (id) ON DELETE No Action ON UPDATE No Action;
 
-ALTER TABLE user_product_ext ADD CONSTRAINT "FK_UserProductRolesExt_UserProfile"
+ALTER TABLE user_product ADD CONSTRAINT "FK_UserProductRolesExt_UserProfile"
     FOREIGN KEY (id_profile) REFERENCES user_profile (id) ON DELETE No Action ON UPDATE No Action;
 
 ALTER TABLE user_roles ADD CONSTRAINT "FK_UserRoles_Role"
@@ -171,7 +171,7 @@ COMMENT ON CONSTRAINT "UI_Premission_Alias" ON permission IS 'Уникальны
 COMMENT ON TABLE product
     IS 'Таблица с описанием продуктов компании. Синхронизировать полностью не будем, наполняется новыми строками, когда какой-то пользователь, имеющий роль в этом продукте, залогинится к нам.';
 
-COMMENT ON COLUMN product.id_product_ext
+COMMENT ON COLUMN product.id
     IS 'Внешний идентификатор продукта из MyProduct';
 
 COMMENT ON COLUMN product.name
@@ -225,16 +225,16 @@ COMMENT ON CONSTRAINT "FK_RolePermissions_Role" ON role_permissions IS 'внеш
 
 COMMENT ON CONSTRAINT "PK_RolePermissions" ON role_permissions IS 'первичный ключ';
 
-COMMENT ON TABLE user_product_ext
+COMMENT ON TABLE user_product
     IS 'связь пользователя с продуктом (эту инфу берем из BeeWorks и MyProduct)';
 
-COMMENT ON COLUMN user_product_ext.id_rec
+COMMENT ON COLUMN user_product.id_rec
     IS 'идентификатор записи, первичный ключ';
 
-COMMENT ON COLUMN user_product_ext.id_profile
+COMMENT ON COLUMN user_product.id_profile
     IS 'идентификатор пользователя,, внешний ключ';
 
-COMMENT ON COLUMN user_product_ext.id_product_ext
+COMMENT ON COLUMN user_product.id_product
     IS 'Идентификатор продукта, внешний ключ';
 
 COMMENT ON TABLE user_profile
