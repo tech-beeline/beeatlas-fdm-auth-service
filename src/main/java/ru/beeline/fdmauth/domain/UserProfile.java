@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_profile")
+@Table(name = "user_profile", schema = "user_auth")
 public class UserProfile {
 
     @Id

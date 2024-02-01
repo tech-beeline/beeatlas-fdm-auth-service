@@ -11,7 +11,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_roles")
+@Table(name = "user_roles", schema = "user_auth")
 public class UserRoles {
 
     @Id

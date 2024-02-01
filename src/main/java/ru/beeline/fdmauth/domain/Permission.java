@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "permission")
+@Table(name = "permission", schema = "user_auth")
 public class Permission {
 
     @Id
