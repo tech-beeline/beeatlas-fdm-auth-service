@@ -10,6 +10,7 @@ import org.springframework.boot.actuate.endpoint.web.annotation.ControllerEndpoi
 import org.springframework.boot.actuate.endpoint.web.annotation.ServletEndpointsSupplier;
 import org.springframework.boot.actuate.endpoint.web.servlet.WebMvcEndpointHandlerMapping;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @EnableWebMvc
 @SpringBootApplication
+@EntityScan("ru.beeline.fdmauth.domain.*")
 public class FdmAuthApplication {
 
     public static void main(String[] args) {
