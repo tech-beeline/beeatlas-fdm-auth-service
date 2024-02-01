@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 
-import static ru.beeline.eafdmmart.utils.RestHelper.getRestTemplate;
+import static ru.beeline.fdmauth.utils.RestHelper.getRestTemplate;
 
 
 @Slf4j
