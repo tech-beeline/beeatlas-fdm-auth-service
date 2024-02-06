@@ -35,4 +35,11 @@ public class ProductController {
         return bwEmployeeService.getEmployeeInfo(login);
     }
 
+
+    @GetMapping("/product/{id}/existence")
+    @ApiOperation(value = "Проверка существования продукта", response = Boolean.class)
+    public ResponseEntity<Boolean> checkProductExistence(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.checkProductExistenceById(id));
+    }
+
 }
