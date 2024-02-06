@@ -8,10 +8,12 @@ import java.util.List;
 
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface ProductRepository extends JpaRepository<Product, Long> {
 
-    @Query(value = "SELECT p.* FROM product p " +
-            "INNER JOIN user_product_ext upr ON p.id_product_ext = upr.id_product_ext " +
+    @Query(value = "SELECT p.* FROM user_auth.product p " +
+            "INNER JOIN user_auth.user_product upr ON p.id = upr.id_product " +
             "WHERE upr.id_profile = ?1", nativeQuery = true)
     List<Product> getProductsByProfileId(Long idProfile);
+
+    Product findAllByAlias(String alias);
 }

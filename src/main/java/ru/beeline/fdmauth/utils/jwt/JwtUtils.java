@@ -5,17 +5,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
-import ru.beeline.fdmauth.utils.eauth.EAuthKey;
-import static ru.beeline.fdmauth.utils.eauth.EAuthHelper.getEAuthKey;
 
 @Slf4j
 public class JwtUtils {
@@ -49,35 +41,6 @@ public class JwtUtils {
     public static JwtUserData getUserData(String token) {
         Map<String, String> data = JwtUtils.encodeJWT(token.substring(token.indexOf(" ")));
         return data != null ? new JwtUserData(data) : null;
-    }
-
-    public static boolean isValid(String token) {
-        EAuthKey jwk = getEAuthKey();
-        if (jwk != null) {
-            try {
-                String[] parts = token.split("\\.");
-                Base64.Decoder decoder = Base64.getUrlDecoder();
-
-                BigInteger modulus = new BigInteger(1, decoder.decode(jwk.getN()));
-                BigInteger exponent = new BigInteger(1, decoder.decode(jwk.getE()));
-                byte[] signingInfo = String.join(".", parts[0], parts[1]).getBytes(StandardCharsets.UTF_8);
-                byte[] b64DecodedSig = decoder.decode(parts[2]);
-
-                PublicKey pub = KeyFactory.getInstance(jwk.getKty()).generatePublic(new RSAPublicKeySpec(modulus, exponent));
-
-                Signature verifier = Signature.getInstance("SHA256withRSA");
-
-                verifier.initVerify(pub);
-                verifier.update(signingInfo);
-                return verifier.verify(b64DecodedSig);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return false;
-            }
-        } else {
-            log.error("EAuthKey is null");
-            return false;
-        }
     }
 
     public static boolean isExpired(String token) {
