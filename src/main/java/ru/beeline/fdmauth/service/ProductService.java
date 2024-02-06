@@ -14,6 +14,7 @@ import ru.beeline.fdmauth.utils.jwt.JwtUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -88,5 +89,10 @@ public class ProductService {
             }
         }
         return products;
+    }
+
+    public Boolean checkProductExistenceById(Long id) {
+        Optional<Product> productOpt = productRepository.findById(id);
+        return productOpt.isPresent();
     }
 }

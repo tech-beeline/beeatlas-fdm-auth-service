@@ -1,10 +1,7 @@
 package ru.beeline.fdmauth.domain;
 
 import lombok.*;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Builder
 @Getter
@@ -16,8 +13,9 @@ import javax.persistence.Table;
 public class Product {
 
     @Id
-    @Column(name = "id_product_ext")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "product_id_rec_generator")
+    @SequenceGenerator(name = "product_id_rec_generator", sequenceName = "product_id_rec_seq", allocationSize = 1)
+    private Long id;
 
     private String name;
 
