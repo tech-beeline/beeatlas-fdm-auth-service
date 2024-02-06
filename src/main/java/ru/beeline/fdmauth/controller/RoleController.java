@@ -16,7 +16,6 @@ import ru.beeline.fdmauth.domain.RolePermission;
 import ru.beeline.fdmauth.dto.RoleShortDTO;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.dto.PermissionDTO;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +34,7 @@ public class RoleController {
     @GetMapping
     @ResponseBody
     @ApiOperation(value = "Получение коллекции ролей пользователей ФДМ", response = List.class)
-    public List<Role> getAllRoles(@RequestHeader("Authorization") String bearerToken) {
+    public List<Role> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();
         roles.removeIf(Role::isDeleted);
         for (Role role : roles) {
@@ -56,8 +55,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 400, message = "Роль с таким именем уже существует")
     })
-    public ResponseEntity createRole(@RequestHeader("Authorization") String bearerToken,
-                                     @RequestBody RoleShortDTO role) {
+    public ResponseEntity createRole(@RequestBody RoleShortDTO role) {
         boolean isExist = roleService.checkNameIsUnique(role.getName());
         if (isExist) {
             String errText = String.format("Конфликт: Роль с именем '%s' уже существует", role.getName());
@@ -85,8 +83,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity updateRole(@RequestHeader("Authorization") String bearerToken,
-                                     @RequestBody RoleShortDTO role) {
+    public ResponseEntity updateRole(@RequestBody RoleShortDTO role) {
         if (role.getId() != null) {
             Long id = role.getId();
             if (id >= 1 && id <= 8) {
@@ -132,8 +129,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity<Role> getRole(@RequestHeader("Authorization") String bearerToken,
-                                        @PathVariable Long id) {
+    public ResponseEntity<Role> getRole(@PathVariable Long id) {
         Optional<Role> currentRoleOpt = roleService.findRole(id);
         if(currentRoleOpt.isPresent()) {
             return ResponseEntity.ok(currentRoleOpt.get());
@@ -152,8 +148,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity deleteRole(@RequestHeader("Authorization") String bearerToken,
-                                     @PathVariable Long id) {
+    public ResponseEntity deleteRole(@PathVariable Long id) {
         if (id >= 1 && id <= 8) {
             String roleName = Role.RoleType.getNameById(id.intValue()-1);
             String errText = String.format("Удаляемая роль '%s' является дефолтной", roleName);
@@ -189,8 +184,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity<List<PermissionDTO>> getRolePermissions(@RequestHeader("Authorization") String bearerToken,
-                                                                 @PathVariable Long id) {
+    public ResponseEntity<List<PermissionDTO>> getRolePermissions(@PathVariable Long id) {
         Optional<Role> currentRoleOpt = roleService.findRole(id);
         if(currentRoleOpt.isPresent()) {
             return ResponseEntity.ok(roleService.getPermissionsWithStatus(id));
@@ -211,8 +205,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity saveRolePermissions(@RequestHeader("Authorization") String bearerToken,
-                                              @PathVariable Long id,
+    public ResponseEntity saveRolePermissions(@PathVariable Long id,
                                               @RequestBody List<Permission> permissions) {
         if (id == 1 || id == 2) {
             String roleName = id == 1 ? "Сотрудник" : "Администратор";

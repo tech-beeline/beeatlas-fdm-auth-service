@@ -14,7 +14,6 @@ import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserProfileService;
-import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.dto.RoleDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
 
@@ -40,7 +39,7 @@ public class UserProfileController {
     @GetMapping
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
-    public ResponseEntity<List<UserProfileDTO>> getAllProfiles(@RequestHeader("Authorization") String bearerToken) {
+    public ResponseEntity<List<UserProfileDTO>> getAllProfiles() {
         List<UserProfileDTO> users = UserProfileDTO.convert(userProfileService.getAllUsers());
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
     }
@@ -48,16 +47,14 @@ public class UserProfileController {
     @PostMapping
     @ResponseBody
     @ApiOperation(value = "Создание профиля пользователя")
-    public ResponseEntity<UserProfileDTO> createUserProfile(@RequestHeader("Authorization") String bearerToken,
-                                                           @RequestBody UserProfileDTO userProfileVM) {
+    public ResponseEntity<UserProfileDTO> createUserProfile(@RequestBody UserProfileDTO userProfileVM) {
         return ResponseEntity.ok(userProfileService.createUserProfileVM(userProfileVM));
     }
 
     @PutMapping("/{id}")
     @ResponseBody
     @ApiOperation(value = "Изменение профиля пользователя")
-    public ResponseEntity<UserProfileDTO> editUserProfile(@RequestHeader("Authorization") String bearerToken,
-                                                         @PathVariable Long id,
+    public ResponseEntity<UserProfileDTO> editUserProfile(@PathVariable Long id,
                                                          @RequestBody UserProfileDTO userProfileVM) {
         Optional<UserProfile> userProfileOpt = userProfileService.findProfileById(id);
         if(userProfileOpt.isPresent()) {
@@ -72,8 +69,7 @@ public class UserProfileController {
     @GetMapping("/find")
     @ResponseBody
     @ApiOperation(value = "Поиск профилей пользователей")
-    public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestHeader("Authorization") String bearerToken,
-                                                                @RequestParam(value = "text", required = true) String text,
+    public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestParam(value = "text", required = true) String text,
                                                                 @RequestParam("filter") String filter) {
         List<UserProfileDTO> users = UserProfileDTO.convert(userProfileService.getAllUsers());
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
@@ -83,8 +79,7 @@ public class UserProfileController {
     @GetMapping("/{login}")
     @ResponseBody
     @ApiOperation(value = "Получение профиля")
-    public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@RequestHeader("Authorization") String bearerToken,
-                                                               @PathVariable String login) {
+    public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
 
         if(userProfile != null) {
@@ -98,8 +93,7 @@ public class UserProfileController {
     @GetMapping("/{login}/roles")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
-    public ResponseEntity<List<RoleDTO>> getUserProfileRoles(@RequestHeader("Authorization") String bearerToken,
-                                                            @PathVariable String login) {
+    public ResponseEntity<List<RoleDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
         if(userProfile == null) {
             logger.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -111,8 +105,7 @@ public class UserProfileController {
     @GetMapping("/{login}/permissions")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений профиля")
-    public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@RequestHeader("Authorization") String bearerToken,
-                                                                       @PathVariable String login) {
+    public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
         if(userProfile == null) {
             logger.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -131,8 +124,7 @@ public class UserProfileController {
     @PutMapping("/{login}/roles")
     @ResponseBody
     @ApiOperation(value = "Установка ролей профиля")
-    public ResponseEntity<UserProfileDTO> setUserProfileRoles(@RequestHeader("Authorization") String bearerToken,
-                                                             @PathVariable String login,
+    public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login,
                                                              @RequestBody List<RoleDTO> roles) {
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
         if(userProfile != null) {

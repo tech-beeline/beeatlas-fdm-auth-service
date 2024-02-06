@@ -21,7 +21,7 @@ public class PermissionController {
 
     @GetMapping
     @ApiOperation(value = "Получение справочника разрешений", response = List.class)
-    public List<Permission> getAllPermissions(@RequestHeader("Authorization") String bearerToken) {
+    public List<Permission> getAllPermissions() {
         List<Permission> permissions = permissionService.getAllPermissions();
         return (permissions != null) ? permissions : new ArrayList<>();
     }
