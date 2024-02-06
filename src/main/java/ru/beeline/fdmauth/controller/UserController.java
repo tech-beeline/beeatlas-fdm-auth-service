@@ -13,22 +13,21 @@ import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
-import ru.beeline.fdmauth.service.UserProfileService;
+import ru.beeline.fdmauth.service.UserService;
 import ru.beeline.fdmauth.dto.RoleDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
-
 import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/api/admin/v1/profiles")
-@Api(value = "Profile API", tags = "Profile")
-public class UserProfileController {
+@RequestMapping("/api/admin/v1/user")
+@Api(value = "User API", tags = "User")
+public class UserController {
 
-    private Logger logger = LoggerFactory.getLogger(UserProfileController.class);
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    private UserProfileService userProfileService;
+    private UserService userService;
 
     @Autowired
     private RoleService roleService;
@@ -40,7 +39,7 @@ public class UserProfileController {
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> getAllProfiles() {
-        List<UserProfileDTO> users = UserProfileDTO.convert(userProfileService.getAllUsers());
+        List<UserProfileDTO> users = UserProfileDTO.convert(userService.getAllUsers());
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
     }
 
@@ -48,7 +47,7 @@ public class UserProfileController {
     @ResponseBody
     @ApiOperation(value = "Создание профиля пользователя")
     public ResponseEntity<UserProfileDTO> createUserProfile(@RequestBody UserProfileDTO userProfileVM) {
-        return ResponseEntity.ok(userProfileService.createUserProfileVM(userProfileVM));
+        return ResponseEntity.ok(userService.createUserProfileVM(userProfileVM));
     }
 
     @PutMapping("/{id}")
@@ -56,10 +55,10 @@ public class UserProfileController {
     @ApiOperation(value = "Изменение профиля пользователя")
     public ResponseEntity<UserProfileDTO> editUserProfile(@PathVariable Long id,
                                                          @RequestBody UserProfileDTO userProfileVM) {
-        Optional<UserProfile> userProfileOpt = userProfileService.findProfileById(id);
+        Optional<UserProfile> userProfileOpt = userService.findProfileById(id);
         if(userProfileOpt.isPresent()) {
             UserProfile userProfile = userProfileOpt.get();
-            UserProfileDTO vm = userProfileService.editUserProfile(userProfile, userProfileVM);
+            UserProfileDTO vm = userService.editUserProfile(userProfile, userProfileVM);
             if(vm != null) return ResponseEntity.ok(vm);
         }
         logger.error(String.format("404 Пользователь c id = %d не найден", id));
@@ -71,7 +70,7 @@ public class UserProfileController {
     @ApiOperation(value = "Поиск профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestParam(value = "text", required = true) String text,
                                                                 @RequestParam("filter") String filter) {
-        List<UserProfileDTO> users = UserProfileDTO.convert(userProfileService.getAllUsers());
+        List<UserProfileDTO> users = UserProfileDTO.convert(userService.getAllUsers());
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
     }
 
@@ -80,7 +79,7 @@ public class UserProfileController {
     @ResponseBody
     @ApiOperation(value = "Получение профиля")
     public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
-        UserProfile userProfile = userProfileService.findProfileByLogin(login);
+        UserProfile userProfile = userService.findProfileByLogin(login);
 
         if(userProfile != null) {
             return ResponseEntity.ok(new UserProfileDTO(userProfile));
@@ -94,7 +93,7 @@ public class UserProfileController {
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleDTO>> getUserProfileRoles(@PathVariable String login) {
-        UserProfile userProfile = userProfileService.findProfileByLogin(login);
+        UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
             logger.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
@@ -106,7 +105,7 @@ public class UserProfileController {
     @ResponseBody
     @ApiOperation(value = "Получение разрешений профиля")
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
-        UserProfile userProfile = userProfileService.findProfileByLogin(login);
+        UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
             logger.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
@@ -126,12 +125,18 @@ public class UserProfileController {
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login,
                                                              @RequestBody List<RoleDTO> roles) {
-        UserProfile userProfile = userProfileService.findProfileByLogin(login);
+        UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile != null) {
-            return ResponseEntity.ok(userProfileService.setRoles(userProfile, roles));
+            return ResponseEntity.ok(userService.setRoles(userProfile, roles));
         } else {
             logger.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{id}/existence")
+    @ApiOperation(value = "Проверка существования пользователя", response = Boolean.class)
+    public ResponseEntity<Boolean> checkUserExistence(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 }

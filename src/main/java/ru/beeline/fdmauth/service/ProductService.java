@@ -11,7 +11,6 @@ import ru.beeline.fdmauth.dto.bw.BWRole;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 import ru.beeline.fdmauth.repository.ProductRepository;
 import ru.beeline.fdmauth.utils.jwt.JwtUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,7 @@ public class ProductService {
     ProductRepository productRepository;
 
     @Autowired
-    private UserProfileService userProfileService;
+    private UserService userProfileService;
 
     @Autowired
     private BWEmployeeService bwEmployeeService;
