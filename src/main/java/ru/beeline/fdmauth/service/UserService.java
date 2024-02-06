@@ -11,7 +11,6 @@ import ru.beeline.fdmauth.utils.jwt.JwtUserData;
 import ru.beeline.fdmauth.utils.jwt.JwtUtils;
 import ru.beeline.fdmauth.dto.RoleDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
-
 import java.sql.Date;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserProfileService {
+public class UserService {
 
     @Autowired
     private UserProfileRepository userProfileRepository;
@@ -130,4 +129,10 @@ public class UserProfileService {
             throw new UnauthorizedException("FORBIDDEN");
         }
     }
+
+    public Boolean checkProductExistenceById(Long id) {
+        Optional<UserProfile> userOpt = userProfileRepository.findById(id);
+        return userOpt.isPresent();
+    }
+
 }
