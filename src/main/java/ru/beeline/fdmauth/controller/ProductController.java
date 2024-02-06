@@ -6,37 +6,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.domain.Product;
-import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 import ru.beeline.fdmauth.service.ProductService;
-import ru.beeline.fdmauth.service.BWEmployeeService;
 import java.util.List;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/product")
 @Api(value = "Product API", tags = "Product")
 public class ProductController {
 
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private BWEmployeeService bwEmployeeService;
-
-    @GetMapping("/product")
+    @GetMapping
     @ApiOperation(value = "Получение списка продуктов", response = List.class)
     public ResponseEntity<List<Product>> getProducts(@RequestHeader("Authorization") String bearerToken) {
         return ResponseEntity.ok(productService.findProductsByPermission(bearerToken));
     }
 
-    @GetMapping("/bw/products/{login}")
-    @ApiOperation(value = "Получение списка продуктов из BeeWorks по логину пользователя", response = EmployeeProductsDTO.class)
-    public EmployeeProductsDTO getEmployeeProducts(@PathVariable String login) {
-        return bwEmployeeService.getEmployeeInfo(login);
-    }
 
-
-    @GetMapping("/product/{id}/existence")
+    @GetMapping("/{id}/existence")
     @ApiOperation(value = "Проверка существования продукта", response = Boolean.class)
     public ResponseEntity<Boolean> checkProductExistence(@PathVariable Long id) {
         return ResponseEntity.ok(productService.checkProductExistenceById(id));
