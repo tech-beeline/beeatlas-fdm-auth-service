@@ -43,27 +43,6 @@ public class UserController {
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
     }
 
-    @PostMapping
-    @ResponseBody
-    @ApiOperation(value = "Создание профиля пользователя")
-    public ResponseEntity<UserProfileDTO> createUserProfile(@RequestBody UserProfileDTO userProfileVM) {
-        return ResponseEntity.ok(userService.createUserProfileVM(userProfileVM));
-    }
-
-    @PutMapping("/{id}")
-    @ResponseBody
-    @ApiOperation(value = "Изменение профиля пользователя")
-    public ResponseEntity<UserProfileDTO> editUserProfile(@PathVariable Long id,
-                                                         @RequestBody UserProfileDTO userProfileVM) {
-        Optional<UserProfile> userProfileOpt = userService.findProfileById(id);
-        if(userProfileOpt.isPresent()) {
-            UserProfile userProfile = userProfileOpt.get();
-            UserProfileDTO vm = userService.editUserProfile(userProfile, userProfileVM);
-            if(vm != null) return ResponseEntity.ok(vm);
-        }
-        logger.error(String.format("404 Пользователь c id = %d не найден", id));
-        return ResponseEntity.notFound().build();
-    }
 
     @GetMapping("/find")
     @ResponseBody
