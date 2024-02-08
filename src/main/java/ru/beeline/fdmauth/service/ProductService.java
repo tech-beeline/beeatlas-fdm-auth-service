@@ -9,6 +9,7 @@ import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.dto.bw.BWRole;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
+import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.ProductRepository;
 import ru.beeline.fdmauth.utils.jwt.JwtUtils;
 import java.util.ArrayList;
@@ -93,5 +94,15 @@ public class ProductService {
     public Boolean checkProductExistenceById(Long id) {
         Optional<Product> productOpt = productRepository.findById(id);
         return productOpt.isPresent();
+    }
+
+    public List<Product> findProductsByUserId(Long id) {
+        Optional<UserProfile> userOpt = userProfileService.findProfileById(id);
+        if(userOpt.isEmpty()) {
+            String errMessage = String.format("404 Пользователь c id '%s' не найден", id);
+            throw new UserNotFoundException(errMessage);
+        } else {
+            return findProductsByUser(userOpt.get());
+        }
     }
 }

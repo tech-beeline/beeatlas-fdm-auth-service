@@ -2,16 +2,17 @@ package ru.beeline.fdmauth.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.domain.Permission;
+import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.service.PermissionService;
+import ru.beeline.fdmauth.service.ProductService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
 import ru.beeline.fdmauth.dto.RoleDTO;
@@ -19,12 +20,11 @@ import ru.beeline.fdmauth.dto.UserProfileDTO;
 import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@Slf4j
 @RestController
 @RequestMapping("/api/admin/v1/user")
 @Api(value = "User API", tags = "User")
 public class UserController {
-
-    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -35,6 +35,8 @@ public class UserController {
     @Autowired
     private PermissionService permissionService;
 
+    @Autowired
+    private ProductService productService;
     @GetMapping
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
@@ -63,7 +65,7 @@ public class UserController {
         if(userProfile != null) {
             return ResponseEntity.ok(new UserProfileDTO(userProfile));
         } else {
-            logger.error(String.format("404 Пользователь c login '%s' не найден", login));
+            log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
     }
@@ -74,7 +76,7 @@ public class UserController {
     public ResponseEntity<List<RoleDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
-            logger.error(String.format("404 Пользователь c login '%s' не найден", login));
+            log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(RoleDTO.convert(userProfile.getUserRoles()));
@@ -86,7 +88,7 @@ public class UserController {
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
-            logger.error(String.format("404 Пользователь c login '%s' не найден", login));
+            log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
         Set<Permission> rPermissions = new HashSet<>();
@@ -108,7 +110,7 @@ public class UserController {
         if(userProfile != null) {
             return ResponseEntity.ok(userService.setRoles(userProfile, roles));
         } else {
-            logger.error(String.format("404 Пользователь c login '%s' не найден", login));
+            log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
     }
@@ -117,5 +119,11 @@ public class UserController {
     @ApiOperation(value = "Проверка существования пользователя", response = Boolean.class)
     public ResponseEntity<Boolean> checkUserExistence(@PathVariable Long id) {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
+    }
+
+    @GetMapping("/{id}/product")
+    @ApiOperation(value = "Получение списка продуктов", response = List.class)
+    public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.findProductsByUserId(id));
     }
 }
