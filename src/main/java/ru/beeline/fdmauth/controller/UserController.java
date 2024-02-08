@@ -7,12 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.domain.Permission;
-import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.service.PermissionService;
-import ru.beeline.fdmauth.service.ProductService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
 import ru.beeline.fdmauth.dto.RoleDTO;
@@ -35,8 +33,7 @@ public class UserController {
     @Autowired
     private PermissionService permissionService;
 
-    @Autowired
-    private ProductService productService;
+
     @GetMapping
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
@@ -121,9 +118,4 @@ public class UserController {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 
-    @GetMapping("/{id}/product")
-    @ApiOperation(value = "Получение списка продуктов", response = List.class)
-    public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.findProductsByUserId(id));
-    }
 }
