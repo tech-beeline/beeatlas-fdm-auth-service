@@ -1,5 +1,6 @@
 package ru.beeline.fdmauth.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -7,18 +8,23 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.beeline.fdmauth.domain.*;
-import ru.beeline.fdmauth.dto.RoleShortDTO;
+import ru.beeline.fdmauth.dto.role.RoleCreateDTO;
+import ru.beeline.fdmauth.dto.role.RoleDTO;
+import ru.beeline.fdmauth.exception.DefaultRoleException;
+import ru.beeline.fdmauth.exception.EntityNotFoundException;
+import ru.beeline.fdmauth.exception.NameConflictException;
+import ru.beeline.fdmauth.exception.RoleConflictException;
 import ru.beeline.fdmauth.repository.RolePermissionsRepository;
 import ru.beeline.fdmauth.repository.RoleRepository;
 import ru.beeline.fdmauth.repository.UserRolesRepository;
 import ru.beeline.fdmauth.dto.PermissionDTO;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class RoleService {
 
     @Autowired
@@ -33,12 +39,24 @@ public class RoleService {
     @Autowired
     private PermissionService permissionService;
 
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+    public List<Role> getAllNotDeletedRoles() {
+        List<Role> roles = roleRepository.findAll();
+        if(roles.isEmpty()) {
+            roles = new ArrayList<>();
+        } else {
+            roles.removeIf(Role::isDeleted);
+            for (Role role : roles) {
+                if (role.getPermissions().isEmpty()) {
+                    List<RolePermission> rolePermissions = getRolePermissions(role.getId());
+                    if (!rolePermissions.isEmpty()) role.setPermissions(rolePermissions);
+                }
+            }
+        }
+        return roles;
     }
 
     @Transactional(transactionManager = "transactionManager")
-    public Role createRole(RoleShortDTO role) {
+    public Role createRole(RoleCreateDTO role) {
         Role newRole = Role.builder()
                 .name(role.getName())
                 .descr(role.getName())
@@ -55,9 +73,42 @@ public class RoleService {
     }
 
     @Transactional(transactionManager = "transactionManager")
-    public Role updateRole(Long id, RoleShortDTO role) {
+    public Role updateRole(Long id, RoleDTO role) {
+        if (id != null) {
+            if (id >= 1 && id <= 8) {
+                String roleName = Role.RoleType.getNameById(id.intValue()-1);
+                String errText = String.format("Редактируемая роль '%s' является дефолтной", roleName);
+                throw new DefaultRoleException(errText);
+            } else {
+                Optional<Role> currentRoleOpt = findRole(id);
+                if (currentRoleOpt.isPresent()) {
+                    Role roleWithSuchName = findRoleByName(role.getName());
+                    if (roleWithSuchName != null) {
+                        if (roleWithSuchName.getId() != id) {
+                            String errText;
+                            if(roleWithSuchName.getId()>= 1 && roleWithSuchName.getId() <= 8){
+                                errText = String.format("Конфликт: роль с именем '%s' уже существует и является дефолтной, нельзя менять имя роли на дефолтное", roleWithSuchName.getName());
+                            } else {
+                                errText = String.format("Конфликт: роль с именем '%s' уже существует", roleWithSuchName.getName());
+                            }
+                            throw new DefaultRoleException(errText);
+                        } else return changeRole(id, role);
+                    }
+                    return changeRole(id, role);
+                } else {
+                    String errText = String.format("404 Роль c id='%d' не найдена", id);
+                    throw new EntityNotFoundException(errText);
+                }
+            }
+        } else {
+            String errText = "409 role.id не может быть null";
+            throw new RoleConflictException(errText);
+        }
+    }
+
+    private Role changeRole(Long id, RoleDTO role) {
         Optional<Role> currentRoleOpt = roleRepository.findById(id);
-        if(!currentRoleOpt.isPresent()) throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        if(currentRoleOpt.isEmpty()) throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         else {
             Role currentRole = currentRoleOpt.get();
             currentRole.setName(role.getName());
@@ -102,7 +153,6 @@ public class RoleService {
                         permission.getName(),
                         permission.getDescr(),
                         permission.getAlias(),
-                        permission.getGroup(),
                         true)
                 );
             } else {
@@ -111,7 +161,6 @@ public class RoleService {
                         permission.getName(),
                         permission.getDescr(),
                         permission.getAlias(),
-                        permission.getGroup(),
                         false)
                 );
             }
@@ -162,5 +211,22 @@ public class RoleService {
 
     public void deleteAllByUserProfileId(Long id) {
         userRolesRepository.deleteAllByUserProfileId(id);
+    }
+
+    @Transactional(transactionManager = "transactionManager")
+    public Role createNewRole(RoleCreateDTO role) {
+        boolean isExist = checkNameIsUnique(role.getName());
+        if (isExist) {
+            String errText = String.format("Конфликт: Роль с именем '%s' уже существует", role.getName());
+            throw new NameConflictException(errText);
+        } else {
+            Role newRole = createRole(role);
+            List<Permission> permissions = new ArrayList<>();
+            permissions.add(new Permission(1));
+            permissions.add(new Permission(2));
+            permissions.add(new Permission(3));
+            saveRolePermissions(newRole, permissions);
+            return newRole;
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import ru.beeline.fdmauth.domain.UserProfile;
+import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class UserProfileDTO {
 
     private String email;
 
-    private List<RoleDTO> roles;
+    private List<RoleInfoDTO> roles;
 
     public UserProfileDTO(String idExt, String fullName, String login, String email) {
         this.idExt = idExt;
@@ -43,7 +44,7 @@ public class UserProfileDTO {
         this.login = userProfile.getLogin();
         this.lastLogin = userProfile.getLastLogin();
         this.email = userProfile.getEmail();
-        this.roles = RoleDTO.convert(userProfile.getUserRoles());
+        this.roles = RoleInfoDTO.convert(userProfile.getUserRoles());
     }
 
     public static List<UserProfileDTO> convert(List<UserProfile> users) {

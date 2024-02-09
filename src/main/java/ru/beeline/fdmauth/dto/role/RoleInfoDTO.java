@@ -1,4 +1,4 @@
-package ru.beeline.fdmauth.dto;
+package ru.beeline.fdmauth.dto.role;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.UserRoles;
-
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.util.List;
@@ -16,11 +15,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleDTO {
-
-    private Long id;
-
-    private String name;
+public class RoleInfoDTO extends RoleDTO {
 
     private String descr;
 
@@ -29,17 +24,16 @@ public class RoleDTO {
 
     private boolean deleted;
 
-    public RoleDTO(Role role) {
-        this.id = role.getId();
-        this.name = role.getName();
+    public RoleInfoDTO(Role role) {
+        super(role.getId(), role.getName());
         this.descr = role.getDescr();
         this.alias = role.getAlias();
         this.deleted = role.isDeleted();
     }
 
-    public static List<RoleDTO> convert(List<UserRoles> userRoles) {
+    public static List<RoleInfoDTO> convert(List<UserRoles> userRoles) {
         return userRoles.stream()
-                .map(userRole -> new RoleDTO(userRole.getRole()))
+                .map(userRole -> new RoleInfoDTO(userRole.getRole()))
                 .collect(Collectors.toList());
     }
 }

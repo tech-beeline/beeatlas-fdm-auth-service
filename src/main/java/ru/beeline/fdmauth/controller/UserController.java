@@ -13,7 +13,7 @@ import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
-import ru.beeline.fdmauth.dto.RoleDTO;
+import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
 import java.util.*;
 
@@ -70,13 +70,13 @@ public class UserController {
     @GetMapping("/{login}/roles")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
-    public ResponseEntity<List<RoleDTO>> getUserProfileRoles(@PathVariable String login) {
+    public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(RoleDTO.convert(userProfile.getUserRoles()));
+        return ResponseEntity.ok(RoleInfoDTO.convert(userProfile.getUserRoles()));
     }
 
     @GetMapping("/{login}/permissions")
@@ -102,7 +102,7 @@ public class UserController {
     @ResponseBody
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login,
-                                                             @RequestBody List<RoleDTO> roles) {
+                                                             @RequestBody List<RoleInfoDTO> roles) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile != null) {
             return ResponseEntity.ok(userService.setRoles(userProfile, roles));

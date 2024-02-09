@@ -30,5 +30,7 @@ public class RolePermission {
     @JoinColumn(name = "id_role")
     private Role role;
 
+    @Column(name = "b_set")
+    private boolean bSet;
 
 }
