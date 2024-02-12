@@ -42,13 +42,13 @@ CREATE SEQUENCE user_auth.permission_id_seq
 
 /* Add Role Permissions */
 
-INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (1, 1, false, 2);
+INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (1, 1, true, 2);
 
-INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (2, 2, false, 2);
+INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (2, 2, true, 2);
 
-INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (3, 3, false, 2);
+INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (3, 3, true, 2);
 
-INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (4, 4, false, 2);
+INSERT INTO user_auth.role_permissions (id_rec, id_permission, b_set, id_role) VALUES (4, 4, true, 2);
 
 /* Create sequence role_permissions_id_rec_seq */
 
