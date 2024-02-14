@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.repository.PermissionRepository;
 import ru.beeline.fdmauth.dto.PermissionDTO;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +36,6 @@ public class PermissionService {
                         permission.getName(),
                         permission.getDescr(),
                         permission.getAlias(),
-                        permission.getGroup(),
                         true)
                 );
             } else {
@@ -46,7 +44,6 @@ public class PermissionService {
                         permission.getName(),
                         permission.getDescr(),
                         permission.getAlias(),
-                        permission.getGroup(),
                         false)
                 );
             }

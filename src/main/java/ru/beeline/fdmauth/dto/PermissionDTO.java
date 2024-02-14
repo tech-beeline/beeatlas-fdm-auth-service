@@ -2,7 +2,6 @@ package ru.beeline.fdmauth.dto;
 
 import lombok.*;
 import ru.beeline.fdmauth.domain.Permission;
-
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
@@ -21,8 +20,6 @@ public class PermissionDTO {
 
     @Enumerated(value = EnumType.STRING)
     private Permission.PermissionType alias;
-
-    private String group;
 
     private boolean active = false;
 

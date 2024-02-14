@@ -30,9 +30,6 @@ public class Permission {
     @Enumerated(value = EnumType.STRING)
     private PermissionType alias;
 
-    @Column(name = "group_name")
-    private String group;
-
     private boolean deleted;
 
     public Permission(long id){
@@ -59,7 +56,6 @@ public class Permission {
                 ", name='" + name + '\'' +
                 ", descr='" + descr + '\'' +
                 ", alias=" + alias +
-                ", group='" + group + '\'' +
                 ", deleted=" + deleted +
                 '}';
     }
