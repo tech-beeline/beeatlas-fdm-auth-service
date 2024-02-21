@@ -229,4 +229,8 @@ public class RoleService {
             return newRole;
         }
     }
+
+    public List<UserRoles> findUserRolesByUser(UserProfile userProfile) {
+        return userRolesRepository.findAllByUserProfile(userProfile);
+    }
 }

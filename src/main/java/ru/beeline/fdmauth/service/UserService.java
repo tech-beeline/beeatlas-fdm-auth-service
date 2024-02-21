@@ -134,13 +134,14 @@ public class UserService {
 
     public UserInfoDTO getInfo(UserProfile userProfile) {
         if(userProfile != null) {
+            List<UserRoles> userRoles = roleService.findUserRolesByUser(userProfile);
             return UserInfoDTO.builder()
                     .id(userProfile.getId())
                     .productsIds(userProfile.getUserProducts() != null ?
                             userProfile.getUserProducts().stream()
                                     .map(up -> up.getProduct().getId()).collect(Collectors.toList()) : new ArrayList<>())
-                    .roles(userProfile.getUserRoles() != null ?
-                            userProfile.getUserRoles().stream()
+                    .roles(userRoles != null ?
+                            userRoles.stream()
                                     .map(ur -> ur.getRole().getAlias()).collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
