@@ -61,12 +61,12 @@ public class BWEmployeeService {
                 employeeProductsDTO = getEmployeeInfo(employeeLogin);
             } else {
                 attemptCounter = 0;
-                throw new UserNotFoundException(e.getMessage());
+                log.error(e.getMessage());
             }
 
         } catch (Exception e) {
             attemptCounter = 0;
-            throw new UserNotFoundException(e.getMessage());
+            log.error(e.getMessage());
         }
         attemptCounter = 0;
         return employeeProductsDTO;
