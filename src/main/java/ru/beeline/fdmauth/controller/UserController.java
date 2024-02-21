@@ -10,6 +10,7 @@ import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
+import ru.beeline.fdmauth.dto.UserInfoDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
@@ -118,4 +119,13 @@ public class UserController {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 
+    @GetMapping("/{login}/info")
+    @ApiOperation(value = "Получение информации о пользователе", response = UserInfoDTO.class)
+    public ResponseEntity<UserInfoDTO> getUserInfo(@PathVariable String login,
+                                                   @RequestParam String email,
+                                                   @RequestParam String fullName,
+                                                   @RequestParam String idExt
+                                                   ) {
+        return ResponseEntity.ok(userService.getInfo(login, email, fullName, idExt));
+    }
 }
