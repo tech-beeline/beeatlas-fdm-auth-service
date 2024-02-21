@@ -9,9 +9,7 @@ import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.dto.bw.BWRole;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
-import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.ProductRepository;
-import ru.beeline.fdmauth.utils.jwt.JwtUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,19 +21,10 @@ public class ProductService {
     ProductRepository productRepository;
 
     @Autowired
-    private UserService userProfileService;
-
-    @Autowired
     private BWEmployeeService bwEmployeeService;
 
     public Product findProductById(Long productId) {
         return productRepository.findById(productId).orElseGet(null);
-    }
-
-    public List<Product> findProductsByPermission(String bearerToken) {
-        String email = JwtUtils.getEmail(bearerToken);
-        UserProfile user = userProfileService.findProfileByEmail(email);
-        return findProductsByUser(user);
     }
 
     public List<Product> findProductsByUser(UserProfile user) {
@@ -94,15 +83,5 @@ public class ProductService {
     public Boolean checkProductExistenceById(Long id) {
         Optional<Product> productOpt = productRepository.findById(id);
         return productOpt.isPresent();
-    }
-
-    public List<Product> findProductsByUserId(Long id) {
-        Optional<UserProfile> userOpt = userProfileService.findProfileById(id);
-        if(userOpt.isEmpty()) {
-            String errMessage = String.format("404 Пользователь c id '%s' не найден", id);
-            throw new UserNotFoundException(errMessage);
-        } else {
-            return findProductsByUser(userOpt.get());
-        }
     }
 }

@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.domain.Product;
+import ru.beeline.fdmauth.domain.UserProfile;
+import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.service.ProductService;
-
+import ru.beeline.fdmauth.service.UserService;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -18,6 +21,9 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private UserService userService;
 
 
     @GetMapping("/product/{id}/existence")
@@ -29,7 +35,14 @@ public class ProductController {
     @GetMapping("/user/{id}/product")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
-        return ResponseEntity.ok(productService.findProductsByUserId(id));
+        Optional<UserProfile> userOpt = userService.findProfileById(id);
+        if(userOpt.isEmpty()) {
+            String errMessage = String.format("404 Пользователь c id '%s' не найден", id);
+            throw new UserNotFoundException(errMessage);
+        } else {
+            UserProfile user = userOpt.get();
+            return ResponseEntity.ok(productService.findProductsByUser(user));
+        }
     }
 
 }

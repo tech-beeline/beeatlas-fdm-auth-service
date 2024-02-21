@@ -46,4 +46,10 @@ public class UserProfile {
     @OneToMany(mappedBy = "userProfile")
     List<UserRoles> userRoles;
 
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_profile")
+    List<UserProducts> userProducts;
+
 }

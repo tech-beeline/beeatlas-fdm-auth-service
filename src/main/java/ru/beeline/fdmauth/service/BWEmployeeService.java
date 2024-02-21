@@ -6,13 +6,16 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.beeline.fdmauth.dto.bw.BWToken;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
+import ru.beeline.fdmauth.exception.UnauthorizedException;
+import ru.beeline.fdmauth.exception.UserNotFoundException;
+
 import static ru.beeline.fdmauth.utils.RestHelper.getRestTemplate;
 
 @Slf4j
@@ -33,12 +36,13 @@ public class BWEmployeeService {
     @Value("${techpassword}")
     private String techPassword;
 
+    private static int attemptCounter = 0;
+
     public EmployeeProductsDTO getEmployeeInfo(String employeeLogin){
         EmployeeProductsDTO employeeProductsDTO = new EmployeeProductsDTO();
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            // TODO: Scheduler update token
             headers.set("Authorization", "Bearer "+ accessToken);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -49,9 +53,23 @@ public class BWEmployeeService {
                     gwUrl + "/bw-roles/v0/v2/users/action/search/by-login/"
                             + employeeLogin,
                     HttpMethod.GET, entity, EmployeeProductsDTO.class).getBody();
-        } catch (Exception e) {
+        } catch (HttpClientErrorException.Unauthorized e) {
             log.error(e.getMessage());
+            if(attemptCounter < 3) {
+                attemptCounter++;
+                updateAccessToken();
+                getEmployeeInfo(employeeLogin);
+            } else {
+                attemptCounter = 0;
+                throw new UnauthorizedException(e.getMessage());
+            }
+
+        } catch (Exception e) {
+            attemptCounter = 0;
+            log.error(e.getMessage());
+            throw new UserNotFoundException(e.getMessage());
         }
+        attemptCounter = 0;
         return employeeProductsDTO;
     }
 
@@ -73,18 +91,13 @@ public class BWEmployeeService {
             BWToken token = restTemplate.exchange(
                     gwUrl + "/gw-auth/1.0.0/token",
                     HttpMethod.POST, entity, BWToken.class).getBody();
-            if (token != null)
+            if (token != null) {
+                log.info("The MAPIC token has been updated");
                 accessToken = token.getAccessToken();
+            }
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-    }
-
-
-    @Scheduled(fixedDelay = 86400000)
-    public void dailyAccessTokenUpdate() {
-        updateAccessToken();
-        log.info("The MAPIC token has been updated");
     }
 
     public String getAccessToken(){
