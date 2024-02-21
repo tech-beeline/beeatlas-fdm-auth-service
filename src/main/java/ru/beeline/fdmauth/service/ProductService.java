@@ -63,7 +63,7 @@ public class ProductService {
 
         EmployeeProductsDTO employeeProductsDTO = bwEmployeeService.getEmployeeInfo(userProfile.getLogin());
 
-        if (employeeProductsDTO != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
+        if (employeeProductsDTO != null && employeeProductsDTO.getBwRoles() != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
 
             for(BWRole bwRole : employeeProductsDTO.getBwRoles()) {
                 Product product = productRepository.findAllByAlias(bwRole.getCmdbCode());

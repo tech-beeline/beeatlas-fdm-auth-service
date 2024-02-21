@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
+    Long DEFAULT_ROLE_ID = 1L;
+
     @Autowired
     private UserProfileRepository userProfileRepository;
 
@@ -55,6 +57,7 @@ public class UserService {
         return userProfile.orElse(null);
     }
 
+
     public UserProfile createUser(String idExt,  String fullName, String login, String email){
         UserProfile newUser = UserProfile.builder()
                 .idExt(idExt)
@@ -69,6 +72,11 @@ public class UserService {
 
     public Optional<UserProfile> findProfileById(Long id) {
         return userProfileRepository.findById(id);
+    }
+
+    public UserProfile findUserById(Long id) {
+        Optional<UserProfile> userOpt = userProfileRepository.findById(id);
+        return userOpt.orElse(null);
     }
 
     public UserProfile findProfileByLogin(String login) {
@@ -95,31 +103,36 @@ public class UserService {
         return updatedUserProfile.map(UserProfileDTO::new).orElse(null);
     }
 
+
     @Transactional(transactionManager = "transactionManager")
     public void updateLastLogin(UserProfile userProfile) {
         userProfile.setLastLogin(new Date(System.currentTimeMillis()));
         userProfileRepository.save(userProfile);
     }
 
+
     public Boolean checkProductExistenceById(Long id) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(id);
         return userOpt.isPresent();
     }
-    @Transactional(transactionManager = "transactionManager")
-    public UserInfoDTO getInfo(String login, String email, String fullName, String idExt) {
-        UserProfile userProfile = findProfileByLogin(login);
-        if(userProfile == null) {
-            userProfile = createUser(idExt, fullName, login, email);
-            roleService.saveRolesByIds(userProfile, Collections.singletonList(1L));
-            productService.findOrCreateProducts(userProfile);
 
-            Optional<UserProfile> userOpt = userProfileRepository.findById(userProfile.getId());
-            userProfile = userOpt.orElse(null);
-        } else {
-            if(userProfile.getUserProducts() == null || userProfile.getUserProducts().isEmpty()) {
-                productService.findOrCreateProducts(userProfile);
+    public void updateUserProducts(UserProfile userProfile, List<Product> products) {
+        if(!products.isEmpty()) {
+            List<UserProducts> userProducts = new ArrayList<>();
+            for (Product product : products) {
+                UserProducts userProduct = UserProducts.builder()
+                        .product(product)
+                        .userProfile(userProfile)
+                        .build();
+                userProducts.add(userProduct);
             }
+            userProfile.setUserProducts(userProducts);
+            userProfileRepository.save(userProfile);
         }
+    }
+
+
+    public UserInfoDTO getInfo(UserProfile userProfile) {
         if(userProfile != null) {
             return UserInfoDTO.builder()
                     .id(userProfile.getId())
@@ -134,6 +147,13 @@ public class UserService {
         } else throw new UserNotFoundException("404 Пользователь не найден");
     }
 
+    public void findAndSaveProducts(UserProfile userProfile) {
+        List<Product> products = productService.findOrCreateProducts(userProfile);
+        if (!products.isEmpty()) {
+            updateUserProducts(userProfile, products);
+        }
+    }
+
     private List<Permission.PermissionType> getPermissionsByUser(UserProfile userProfile) {
         Set<Permission.PermissionType> permissionTypes = new HashSet<>();
         if(userProfile.getUserRoles() != null) {
@@ -146,5 +166,16 @@ public class UserService {
         }
 
         return permissionTypes.stream().toList();
+    }
+
+    @Transactional(transactionManager = "transactionManager")
+    public UserProfile createNewUserAndProducts(String login, String email, String fullName, String idExt) {
+        UserProfile newUser = createUser(idExt, fullName, login, email);
+        findAndSaveProducts(newUser);
+        return newUser;
+    }
+
+    public void addDefaultRole(UserProfile newUser) {
+        roleService.saveRolesByIds(newUser, Collections.singletonList(DEFAULT_ROLE_ID));
     }
 }

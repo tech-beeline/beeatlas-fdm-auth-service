@@ -11,12 +11,12 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_product_ext")
+@Table(name = "user_product", schema = "user_auth")
 public class UserProducts {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_product_ext_id_rec_generator")
-    @SequenceGenerator(name = "user_product_ext_id_rec_generator", sequenceName = "user_product_ext_id_rec_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_product_id_rec_generator")
+    @SequenceGenerator(name = "user_product_id_rec_generator", sequenceName = "user_product_id_rec_seq", allocationSize = 1)
     @Column(name = "id_rec")
     private Long id;
 
@@ -25,6 +25,6 @@ public class UserProducts {
     private UserProfile userProfile;
 
     @ManyToOne
-    @JoinColumn(name = "id_product_ext")
+    @JoinColumn(name = "id_product")
     private Product product;
 }

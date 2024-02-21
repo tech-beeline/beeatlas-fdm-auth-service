@@ -13,7 +13,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.beeline.fdmauth.dto.bw.BWToken;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
-import ru.beeline.fdmauth.exception.UnauthorizedException;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
 
 import static ru.beeline.fdmauth.utils.RestHelper.getRestTemplate;
@@ -57,16 +56,16 @@ public class BWEmployeeService {
             log.error(e.getMessage());
             if(attemptCounter < 3) {
                 attemptCounter++;
+                log.info("The MAPIC token update attempt: " + attemptCounter);
                 updateAccessToken();
-                getEmployeeInfo(employeeLogin);
+                employeeProductsDTO = getEmployeeInfo(employeeLogin);
             } else {
                 attemptCounter = 0;
-                throw new UnauthorizedException(e.getMessage());
+                throw new UserNotFoundException(e.getMessage());
             }
 
         } catch (Exception e) {
             attemptCounter = 0;
-            log.error(e.getMessage());
             throw new UserNotFoundException(e.getMessage());
         }
         attemptCounter = 0;

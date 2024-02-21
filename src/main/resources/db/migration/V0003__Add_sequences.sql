@@ -1,0 +1,34 @@
+/* Create sequences */
+
+CREATE SEQUENCE user_auth.user_profile_id_seq
+    INCREMENT 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    START 1
+    CACHE 1
+;
+
+
+CREATE SEQUENCE user_auth.user_roles_id_rec_seq
+    INCREMENT 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    START 1
+    CACHE 1
+;
+
+CREATE SEQUENCE user_auth.product_id_rec_seq
+    INCREMENT 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    START 1
+    CACHE 1
+;
+
+CREATE SEQUENCE user_auth.user_product_id_rec_seq
+    INCREMENT 1
+    MINVALUE 1
+    MAXVALUE 9223372036854775807
+    START 1
+    CACHE 1
+;

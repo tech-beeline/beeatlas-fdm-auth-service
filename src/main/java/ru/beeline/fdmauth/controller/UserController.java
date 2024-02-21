@@ -126,6 +126,16 @@ public class UserController {
                                                    @RequestParam String fullName,
                                                    @RequestParam String idExt
                                                    ) {
-        return ResponseEntity.ok(userService.getInfo(login, email, fullName, idExt));
+        UserProfile userProfile = userService.findProfileByLogin(login);
+        if(userProfile == null) {
+            userProfile = userService.createNewUserAndProducts(login, email, fullName, idExt);
+            userService.addDefaultRole(userProfile);
+            userProfile = userService.findUserById(userProfile.getId());
+        } else {
+            if(userProfile.getUserProducts() == null || userProfile.getUserProducts().isEmpty()) {
+                userService.findAndSaveProducts(userProfile);
+            }
+        }
+        return ResponseEntity.ok(userService.getInfo(userProfile));
     }
 }
