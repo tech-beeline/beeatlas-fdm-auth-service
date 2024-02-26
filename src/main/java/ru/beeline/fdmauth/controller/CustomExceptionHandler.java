@@ -16,6 +16,12 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
+    @ExceptionHandler(MethodUnauthorizedException.class)
+    public ResponseEntity<Object> handleException(MethodUnauthorizedException e) {
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Object> handleException(UserNotFoundException e) {
         log.error(e.getMessage());
@@ -44,6 +50,13 @@ public class CustomExceptionHandler {
     public ResponseEntity<Object> handleException(RoleConflictException e) {
         log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+
+    @ExceptionHandler(OnlyAdminAccessException.class)
+    public ResponseEntity<Object> handleException(OnlyAdminAccessException e) {
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
 }
