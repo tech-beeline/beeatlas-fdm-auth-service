@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.beeline.fdmauth.domain.*;
+import ru.beeline.fdmauth.dto.PermissionTypeDTO;
 import ru.beeline.fdmauth.dto.role.RoleCreateDTO;
 import ru.beeline.fdmauth.dto.role.RoleDTO;
 import ru.beeline.fdmauth.exception.DefaultRoleException;
@@ -152,7 +153,7 @@ public class RoleService {
                         permission.getId(),
                         permission.getName(),
                         permission.getDescr(),
-                        permission.getAlias(),
+                        PermissionTypeDTO.valueOf(permission.getAlias().name()),
                         true)
                 );
             } else {
@@ -160,7 +161,7 @@ public class RoleService {
                         permission.getId(),
                         permission.getName(),
                         permission.getDescr(),
-                        permission.getAlias(),
+                        PermissionTypeDTO.valueOf(permission.getAlias().name()),
                         false)
                 );
             }

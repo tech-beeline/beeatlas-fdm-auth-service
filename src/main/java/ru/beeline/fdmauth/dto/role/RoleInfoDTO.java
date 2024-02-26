@@ -20,14 +20,14 @@ public class RoleInfoDTO extends RoleDTO {
     private String descr;
 
     @Enumerated(value = EnumType.STRING)
-    private Role.RoleType alias;
+    private RoleTypeDTO alias;
 
     private boolean deleted;
 
     public RoleInfoDTO(Role role) {
         super(role.getId(), role.getName());
         this.descr = role.getDescr();
-        this.alias = role.getAlias();
+        this.alias = RoleTypeDTO.valueOf(role.getAlias().getRoleName());
         this.deleted = role.isDeleted();
     }
 

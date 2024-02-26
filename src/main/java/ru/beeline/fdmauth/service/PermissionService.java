@@ -3,6 +3,7 @@ package ru.beeline.fdmauth.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.beeline.fdmauth.domain.Permission;
+import ru.beeline.fdmauth.dto.PermissionTypeDTO;
 import ru.beeline.fdmauth.repository.PermissionRepository;
 import ru.beeline.fdmauth.dto.PermissionDTO;
 import java.util.HashSet;
@@ -35,7 +36,7 @@ public class PermissionService {
                         permission.getId(),
                         permission.getName(),
                         permission.getDescr(),
-                        permission.getAlias(),
+                        PermissionTypeDTO.valueOf(permission.getAlias().name()),
                         true)
                 );
             } else {
@@ -43,7 +44,7 @@ public class PermissionService {
                         permission.getId(),
                         permission.getName(),
                         permission.getDescr(),
-                        permission.getAlias(),
+                        PermissionTypeDTO.valueOf(permission.getAlias().name()),
                         false)
                 );
             }
