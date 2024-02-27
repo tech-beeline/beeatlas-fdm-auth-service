@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.beeline.fdmauth.domain.*;
+import ru.beeline.fdmauth.dto.PermissionTypeDTO;
 import ru.beeline.fdmauth.dto.UserInfoDTO;
+import ru.beeline.fdmauth.dto.role.RoleTypeDTO;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
@@ -142,7 +144,7 @@ public class UserService {
                                     .map(up -> up.getProduct().getId()).collect(Collectors.toList()) : new ArrayList<>())
                     .roles(userRoles != null ?
                             userRoles.stream()
-                                    .map(ur -> ur.getRole().getAlias()).collect(Collectors.toList()) : new ArrayList<>())
+                                    .map(ur -> RoleTypeDTO.valueOf(ur.getRole().getAlias().name())).collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
         } else throw new UserNotFoundException("404 Пользователь не найден");
@@ -155,13 +157,13 @@ public class UserService {
         }
     }
 
-    private List<Permission.PermissionType> getPermissionsByUser(UserProfile userProfile) {
-        Set<Permission.PermissionType> permissionTypes = new HashSet<>();
+    private List<PermissionTypeDTO> getPermissionsByUser(UserProfile userProfile) {
+        Set<PermissionTypeDTO> permissionTypes = new HashSet<>();
         if(userProfile.getUserRoles() != null) {
             for(UserRoles userRole : userProfile.getUserRoles()) {
                 List<RolePermission> rolePermissions = userRole.getRole().getPermissions();
                 if(rolePermissions != null) {
-                    permissionTypes.addAll(rolePermissions.stream().map(rp -> rp.getPermission().getAlias()).toList());
+                    permissionTypes.addAll(rolePermissions.stream().map(rp -> PermissionTypeDTO.valueOf(rp.getPermission().getAlias().name())).toList());
                 }
             }
         }

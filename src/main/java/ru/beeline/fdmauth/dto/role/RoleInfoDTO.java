@@ -27,7 +27,7 @@ public class RoleInfoDTO extends RoleDTO {
     public RoleInfoDTO(Role role) {
         super(role.getId(), role.getName());
         this.descr = role.getDescr();
-        this.alias = RoleTypeDTO.valueOf(role.getAlias().getRoleName());
+        this.alias = RoleTypeDTO.valueOf(role.getAlias().name());
         this.deleted = role.isDeleted();
     }
 

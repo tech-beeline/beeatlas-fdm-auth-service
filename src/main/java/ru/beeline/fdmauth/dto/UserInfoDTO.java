@@ -1,8 +1,8 @@
 package ru.beeline.fdmauth.dto;
 
 import lombok.*;
-import ru.beeline.fdmauth.domain.Permission;
-import ru.beeline.fdmauth.domain.Role;
+import ru.beeline.fdmauth.dto.role.RoleTypeDTO;
+
 import java.util.List;
 
 @NoArgsConstructor
@@ -15,8 +15,8 @@ public class UserInfoDTO {
     private Long id;
     private List<Long> productsIds;
 
-    private List<Role.RoleType> roles;
+    private List<RoleTypeDTO> roles;
 
-    private List<Permission.PermissionType> permissions;
+    private List<PermissionTypeDTO> permissions;
 
 }
