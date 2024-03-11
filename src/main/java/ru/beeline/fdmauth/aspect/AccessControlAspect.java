@@ -1,71 +1,47 @@
 package ru.beeline.fdmauth.aspect;
 
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import ru.beeline.fdmauth.domain.Role;
-import ru.beeline.fdmauth.domain.UserProfile;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import ru.beeline.fdmauth.exception.MethodUnauthorizedException;
 import ru.beeline.fdmauth.exception.OnlyAdminAccessException;
-import ru.beeline.fdmauth.service.*;
-import ru.beeline.fdmauth.utils.jwt.JwtUserData;
-import ru.beeline.fdmauth.utils.jwt.JwtUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.List;
+
+import static ru.beeline.fdmauth.dto.role.RoleTypeDTO.ADMINISTRATOR;
+import static ru.beeline.fdmauth.utils.Constant.*;
 
 @Aspect
 @Component
-@Slf4j
 public class AccessControlAspect {
 
-    @Autowired
-    private UserService userService;
+    @Around("@annotation(AccessControl)")
+    public Object checkHeaders(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
-    @Autowired
-    private RoleService roleService;
+        String userId = request.getHeader(USER_ID_HEADER);
+        String productsIds = request.getHeader(USER_PRODUCTS_IDS_HEADER);
+        String userPermissions = request.getHeader(USER_PERMISSIONS_HEADER);
+        String userRoles = request.getHeader(USER_ROLES_HEADER);
 
-    @Autowired
-    private ProductService productService;
-
-    @Around(value = "@annotation(AdminAccessControl)")
-    public Object checkAccess(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object[] args = joinPoint.getArgs();
-        Long userId = (Long) args[0];
-        long[] userProductIds = (long[]) args[1];
-        String[] userRoles = (String[]) args[2];
-        String[] userPermissions = (String[]) args[3];
-
-        if (userId == null ||
-                userProductIds == null || userProductIds.length == 0 ||
-                userRoles == null || userRoles.length == 0 ||
-                userPermissions == null || userPermissions.length == 0) {
-            throw new MethodUnauthorizedException("Обязательные Headers отсутствуют");
+        if (userId == null || productsIds == null || userPermissions == null || userRoles == null) {
+            throw new MethodUnauthorizedException("401 Unauthorized");
         }
 
-        boolean isAdmin = Arrays.asList(userRoles).contains(Role.RoleType.ADMINISTRATOR.name());
-        if (!isAdmin) {
-            throw new OnlyAdminAccessException("Доступ запрещен. Недостаточно прав у пользователя.");
-        }
-        log.info("Method access was successful");
-
+        boolean isAdmin = toList(userRoles).contains(ADMINISTRATOR.name());
+        if (!isAdmin) throw new OnlyAdminAccessException("403 Permission denied");
 
         return joinPoint.proceed();
     }
 
-
-    @Transactional(transactionManager = "transactionManager")
-    public void validateAccess(String bearerToken) {
-        UserProfile user;
-        validate(bearerToken);
-
-        JwtUserData userData = JwtUtils.getUserData(bearerToken);
-
-    }
-
-    private void validate(String bearerToken) {
-        log.error("");
+    private List<String> toList(String value) {
+        return Arrays.asList(
+                value.replaceAll("^\\[|\\]$", "").split(",")
+        );
     }
 }

@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.beeline.fdmauth.aspect.AdminAccessControl;
+import ru.beeline.fdmauth.aspect.AccessControl;
 import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
@@ -36,43 +36,32 @@ public class UserController {
     private PermissionService permissionService;
 
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
-    public ResponseEntity<List<UserProfileDTO>> getAllProfiles(@RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                               @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                               @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                               @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<List<UserProfileDTO>> getAllProfiles() {
         List<UserProfileDTO> users = UserProfileDTO.convert(userService.getAllUsers());
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
     }
 
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping("/find")
     @ResponseBody
     @ApiOperation(value = "Поиск профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestParam(value = "text", required = true) String text,
-                                                                 @RequestParam("filter") String filter,
-                                                                 @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                                 @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                                 @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                                 @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+                                                                 @RequestParam("filter") String filter) {
         List<UserProfileDTO> users = UserProfileDTO.convert(userService.getAllUsers());
         return (users != null) ? ResponseEntity.ok(users) : ResponseEntity.ok(new ArrayList<>());
     }
 
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping("/{login}")
     @ResponseBody
     @ApiOperation(value = "Получение профиля")
-    public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login,
-                                                                @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                                @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                                @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                                @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
 
         if(userProfile != null) {
@@ -83,15 +72,11 @@ public class UserController {
         }
     }
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping("/{login}/roles")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
-    public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login,
-                                                                 @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                                 @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                                 @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                                 @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -100,15 +85,11 @@ public class UserController {
         return ResponseEntity.ok(RoleInfoDTO.convert(userProfile.getUserRoles()));
     }
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping("/{login}/permissions")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений профиля")
-    public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login,
-                                                                        @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                                        @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                                        @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                                        @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -124,16 +105,11 @@ public class UserController {
     }
 
 
-    @AdminAccessControl
+    @AccessControl
     @PutMapping("/{login}/roles")
     @ResponseBody
     @ApiOperation(value = "Установка ролей профиля")
-    public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login,
-                                                             @RequestBody List<RoleInfoDTO> roles,
-                                                              @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                              @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                              @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                              @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login, @RequestBody List<RoleInfoDTO> roles) {
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile != null) {
             return ResponseEntity.ok(userService.setRoles(userProfile, roles));

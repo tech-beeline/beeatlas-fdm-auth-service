@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.beeline.fdmauth.aspect.AdminAccessControl;
+import ru.beeline.fdmauth.aspect.AccessControl;
 import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.dto.role.RoleCreateDTO;
@@ -28,19 +28,15 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping
     @ResponseBody
     @ApiOperation(value = "Получение коллекции ролей пользователей ФДМ", response = List.class)
-    public List<Role> getAllRoles(@RequestHeader(value = "USER_ID", required = false) Long userId,
-                                  @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                  @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                  @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public List<Role> getAllRoles() {
         return roleService.getAllNotDeletedRoles();
     }
 
-
-    @AdminAccessControl
+    @AccessControl
     @PostMapping
     @ResponseBody
     @ApiOperation(value = "Создание новой роли в справочнике ролей", response = Role.class)
@@ -49,16 +45,12 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 400, message = "Роль с таким именем уже существует")
     })
-    public ResponseEntity<Role> createRole(@RequestBody RoleCreateDTO role,
-                                           @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                           @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                           @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                           @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<Role> createRole(@RequestBody RoleCreateDTO role) {
         return ResponseEntity.ok(roleService.createNewRole(role));
     }
 
 
-    @AdminAccessControl
+    @AccessControl
     @PatchMapping
     @ResponseBody
     @ApiOperation(value = "Изменение роли в справочнике ролей", response = Role.class)
@@ -68,15 +60,11 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity<Role> updateRole(@RequestBody RoleDTO role,
-                                           @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                           @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                           @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                           @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<Role> updateRole(@RequestBody RoleDTO role) {
         return ResponseEntity.ok(roleService.updateRole(role.getId(), role));
     }
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping("/{id}")
     @ResponseBody
     @ApiOperation(value = "Получение роли", response = Role.class)
@@ -85,11 +73,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity<Role> getRole(@PathVariable Long id,
-                                        @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                        @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                        @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                        @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<Role> getRole(@PathVariable Long id) {
         Optional<Role> currentRoleOpt = roleService.findRole(id);
         if(currentRoleOpt.isPresent()) {
             return ResponseEntity.ok(currentRoleOpt.get());
@@ -100,7 +84,7 @@ public class RoleController {
         }
     }
 
-    @AdminAccessControl
+    @AccessControl
     @DeleteMapping("/{id}")
     @ResponseBody
     @ApiOperation(value = "Удаление роли (статус меняется на DELETED)", response = Role.class)
@@ -109,11 +93,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity deleteRole(@PathVariable Long id,
-                                     @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                     @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                     @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                     @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity deleteRole(@PathVariable Long id) {
         if (id >= 1 && id <= 8) {
             String roleName = Role.RoleType.getNameById(id.intValue()-1);
             String errText = String.format("Удаляемая роль '%s' является дефолтной", roleName);
@@ -141,7 +121,7 @@ public class RoleController {
     }
 
 
-    @AdminAccessControl
+    @AccessControl
     @GetMapping("/{id}/permissions")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений для роли", response = Role.class)
@@ -150,11 +130,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity<List<PermissionDTO>> getRolePermissions(@PathVariable Long id,
-                                                                  @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                                                  @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                                                  @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                                                  @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity<List<PermissionDTO>> getRolePermissions(@PathVariable Long id) {
         Optional<Role> currentRoleOpt = roleService.findRole(id);
         if(currentRoleOpt.isPresent()) {
             return ResponseEntity.ok(roleService.getPermissionsWithStatus(id));
@@ -166,7 +142,7 @@ public class RoleController {
     }
 
 
-    @AdminAccessControl
+    @AccessControl
     @PutMapping("/{id}/permissions")
     @ResponseBody
     @ApiOperation(value = "Сохранение разрешений для роли", response = Role.class)
@@ -176,12 +152,7 @@ public class RoleController {
             @ApiResponse(code = 403, message = "Недостаточно прав"),
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
-    public ResponseEntity saveRolePermissions(@PathVariable Long id,
-                                              @RequestBody List<Permission> permissions,
-                                              @RequestHeader(value = "USER_ID", required = false) Long userId,
-                                              @RequestHeader(value = "USER_PRODUCTS_IDS", required = false) long[] userProductIds,
-                                              @RequestHeader(value = "USER_ROLES", required = false) String[] userRoles,
-                                              @RequestHeader(value = "USER_PERMISSION", required = false) String[] userPermissions) {
+    public ResponseEntity saveRolePermissions(@PathVariable Long id, @RequestBody List<Permission> permissions) {
         if (id == 1 || id == 2) {
             String roleName = id == 1 ? "Сотрудник" : "Администратор";
 
