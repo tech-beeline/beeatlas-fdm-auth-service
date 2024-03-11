@@ -41,7 +41,7 @@ public class AccessControlAspect {
 
     private List<String> toList(String value) {
         return Arrays.asList(
-                value.replaceAll("^\\[|\\]$", "").split(",")
+                value.replaceAll("^\\[|\\]$|\"", "").split(",")
         );
     }
 }
