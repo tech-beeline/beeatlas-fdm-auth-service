@@ -30,7 +30,7 @@ public class Role {
     private boolean deleted;
 
     public boolean isDefault() {
-        return alias.equals(RoleType.DEFAULT);
+        return name.equals(RoleType.DEFAULT.roleName) || name.equals(RoleType.ADMINISTRATOR.roleName);
     }
 
     @ApiModelProperty(hidden = true)
