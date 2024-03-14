@@ -17,7 +17,7 @@ public class ConfigurationController {
     @Autowired
     private BWEmployeeService bwEmployeeService;
 
-    @GetMapping("/api/runtime/v1/mapic/token")
+    @GetMapping(value = "/api/runtime/v1/mapic/token", produces = "application/json")
     @ApiOperation(value = "Обновление и получение токена MAPIC", response = String.class)
     public String getEmployeeProducts() {
         bwEmployeeService.updateAccessToken();

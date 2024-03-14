@@ -19,7 +19,7 @@ public class PermissionController {
     @Autowired
     private PermissionService permissionService;
 
-    @GetMapping
+    @GetMapping(produces = "application/json")
     @AccessControl
     @ApiOperation(value = "Получение справочника разрешений", response = List.class)
     public List<Permission> getAllPermissions() {

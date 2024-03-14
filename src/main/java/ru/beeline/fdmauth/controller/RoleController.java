@@ -29,7 +29,7 @@ public class RoleController {
     private RoleService roleService;
 
     @AccessControl
-    @GetMapping
+    @GetMapping(produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение коллекции ролей пользователей ФДМ", response = List.class)
     public List<Role> getAllRoles() {
@@ -37,7 +37,7 @@ public class RoleController {
     }
 
     @AccessControl
-    @PostMapping
+    @PostMapping(produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Создание новой роли в справочнике ролей", response = Role.class)
     @ApiResponses(value = {
@@ -51,7 +51,7 @@ public class RoleController {
 
 
     @AccessControl
-    @PatchMapping
+    @PatchMapping(produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Изменение роли в справочнике ролей", response = Role.class)
     @ApiResponses(value = {
@@ -65,7 +65,7 @@ public class RoleController {
     }
 
     @AccessControl
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение роли", response = Role.class)
     @ApiResponses(value = {
@@ -85,7 +85,7 @@ public class RoleController {
     }
 
     @AccessControl
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Удаление роли (статус меняется на DELETED)", response = Role.class)
     @ApiResponses(value = {
@@ -122,7 +122,7 @@ public class RoleController {
 
 
     @AccessControl
-    @GetMapping("/{id}/permissions")
+    @GetMapping(value = "/{id}/permissions", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений для роли", response = Role.class)
     @ApiResponses(value = {
@@ -143,7 +143,7 @@ public class RoleController {
 
 
     @AccessControl
-    @PutMapping("/{id}/permissions")
+    @PutMapping(value = "/{id}/permissions", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Сохранение разрешений для роли", response = Role.class)
     @ApiResponses(value = {

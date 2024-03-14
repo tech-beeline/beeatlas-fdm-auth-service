@@ -16,7 +16,7 @@ public class BeeWorksController {
     @Autowired
     private BWEmployeeService bwEmployeeService;
 
-    @GetMapping("/products/{login}")
+    @GetMapping(value = "/products/{login}", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов из BeeWorks по логину пользователя", response = EmployeeProductsDTO.class)
     public EmployeeProductsDTO getEmployeeProducts(@PathVariable String login) {
         return bwEmployeeService.getEmployeeInfo(login);

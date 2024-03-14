@@ -37,7 +37,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping
+    @GetMapping(produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> getAllProfiles() {
@@ -47,7 +47,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping("/find")
+    @GetMapping(value = "/find", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Поиск профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestParam(value = "text", required = true) String text,
@@ -58,7 +58,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping("/{login}")
+    @GetMapping(value = "/{login}", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение профиля")
     public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
@@ -73,7 +73,7 @@ public class UserController {
     }
 
     @AccessControl
-    @GetMapping("/{login}/roles")
+    @GetMapping(value = "/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
@@ -86,7 +86,7 @@ public class UserController {
     }
 
     @AccessControl
-    @GetMapping("/{login}/permissions")
+    @GetMapping(value = "/{login}/permissions", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений профиля")
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
@@ -106,7 +106,7 @@ public class UserController {
 
 
     @AccessControl
-    @PutMapping("/{login}/roles")
+    @PutMapping(value = "/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login, @RequestBody List<RoleInfoDTO> roles) {
@@ -120,14 +120,14 @@ public class UserController {
     }
 
 
-    @GetMapping("/{id}/existence")
+    @GetMapping(value = "/{id}/existence", produces = "application/json")
     @ApiOperation(value = "Проверка существования пользователя", response = Boolean.class)
     public ResponseEntity<Boolean> checkUserExistence(@PathVariable Long id) {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 
 
-    @GetMapping("/{login}/info")
+    @GetMapping(value = "/{login}/info", produces = "application/json")
     @ApiOperation(value = "Получение информации о пользователе", response = UserInfoDTO.class)
     public ResponseEntity<UserInfoDTO> getUserInfo(@PathVariable String login,
                                                    @RequestParam String email,

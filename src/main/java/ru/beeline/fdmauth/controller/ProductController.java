@@ -26,17 +26,17 @@ public class ProductController {
     private UserService userService;
 
 
-    @GetMapping("/product/{id}/existence")
+    @GetMapping(value = "/product/{id}/existence", produces = "application/json")
     @ApiOperation(value = "Проверка существования продукта", response = Boolean.class)
     public ResponseEntity<Boolean> checkProductExistence(@PathVariable Long id) {
         return ResponseEntity.ok(productService.checkProductExistenceById(id));
     }
 
-    @GetMapping("/user/{id}/product")
+    @GetMapping(value = "/user/{id}/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
         Optional<UserProfile> userOpt = userService.findProfileById(id);
-        if(userOpt.isEmpty()) {
+        if(!userOpt.isPresent()) {
             String errMessage = String.format("404 Пользователь c id '%s' не найден", id);
             throw new UserNotFoundException(errMessage);
         } else {
