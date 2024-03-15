@@ -8,3 +8,10 @@ env:
   AUTHBASIC: "vault:eafdmmart/data/dev/fdm#mapicauth"
   TECHUSER: "vault:eafdmmart/data/dev/fdm#techuser"
   TECHPASSWORD: "vault:eafdmmart/data/dev/fdm#techpassword"
+  
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type, authorization
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+    nginx.ingress.kubernetes.io/cors-allow-origin: *
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
