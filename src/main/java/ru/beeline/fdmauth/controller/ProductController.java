@@ -7,9 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
-import ru.beeline.fdmauth.exception.UserNotFoundException;
+import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.service.ProductService;
 import ru.beeline.fdmauth.service.UserService;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -36,13 +37,12 @@ public class ProductController {
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
         Optional<UserProfile> userOpt = userService.findProfileById(id);
-        if(!userOpt.isPresent()) {
+        if (!userOpt.isPresent()) {
             String errMessage = String.format("404 Пользователь c id '%s' не найден", id);
-            throw new UserNotFoundException(errMessage);
+            throw new EntityNotFoundException(errMessage);
         } else {
             UserProfile user = userOpt.get();
             return ResponseEntity.ok(productService.findProductsByUser(user));
         }
     }
-
 }
