@@ -76,6 +76,10 @@ public class UserService {
         return userProfileRepository.findById(id);
     }
 
+    public UserProfile findProfileByIdExt(String idExt) {
+        return userProfileRepository.findUserProfileByIdExt(idExt);
+    }
+
     public UserProfile findUserById(Long id) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(id);
         return userOpt.orElse(null);

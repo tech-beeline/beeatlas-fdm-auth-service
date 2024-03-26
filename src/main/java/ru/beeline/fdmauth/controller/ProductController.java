@@ -45,4 +45,21 @@ public class ProductController {
             return ResponseEntity.ok(productService.findProductsByUser(user));
         }
     }
+
+
+    @GetMapping(value = "/admin/v1/product", produces = "application/json")
+    @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
+    public ResponseEntity<List<Product>> getUserProducts(@PathVariable String login,
+                                                         @RequestParam String email,
+                                                         @RequestParam String fullName,
+                                                         @RequestParam String idExt
+    ) {
+        UserProfile user = userService.findProfileByIdExt(idExt);
+        if (user == null) {
+            String errMessage = String.format("404 Пользователь c idExt '%s' не найден", idExt);
+            throw new EntityNotFoundException(errMessage);
+        } else {
+            return ResponseEntity.ok(productService.findProductsByUser(user));
+        }
+    }
 }

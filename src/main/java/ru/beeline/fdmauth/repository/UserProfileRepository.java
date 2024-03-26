@@ -13,6 +13,8 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
 
     UserProfile findUserProfileByEmail(String email);
 
+    UserProfile findUserProfileByIdExt(String idExt);
+
     @Query(value = "SELECT COUNT(*) FROM user_product_ext " +
             "WHERE user_product_ext.id_profile = :profileId AND user_product_ext.id_product_ext = :productId", nativeQuery = true)
     Long hasLinkProductIdWithProfileId(@Param("profileId") Long profileId, @Param("productId") String productId);
