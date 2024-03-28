@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.beeline.fdmauth.aspect.HeaderControl;
 import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.exception.EntityNotFoundException;
@@ -13,6 +14,8 @@ import ru.beeline.fdmauth.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
+
+import static ru.beeline.fdmauth.utils.Constant.USER_ID_HEADER;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -47,16 +50,13 @@ public class ProductController {
     }
 
 
+    @HeaderControl
     @GetMapping(value = "/admin/v1/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
-    public ResponseEntity<List<Product>> getUserProducts(@PathVariable String login,
-                                                         @RequestParam String email,
-                                                         @RequestParam String fullName,
-                                                         @RequestParam String idExt
-    ) {
-        UserProfile user = userService.findProfileByIdExt(idExt);
+    public ResponseEntity<List<Product>> getUserProducts(@RequestHeader(value = USER_ID_HEADER, required = false) String userId){
+        UserProfile user = userService.findUserById(Long.valueOf(userId));
         if (user == null) {
-            String errMessage = String.format("404 Пользователь c idExt '%s' не найден", idExt);
+            String errMessage = String.format("404 Пользователь c id '%s' не найден", userId);
             throw new EntityNotFoundException(errMessage);
         } else {
             return ResponseEntity.ok(productService.findProductsByUser(user));
