@@ -21,7 +21,22 @@ import static ru.beeline.fdmauth.utils.Constant.*;
 public class AccessControlAspect {
 
     @Around("@annotation(AccessControl)")
+    public Object checkAdminAccess(ProceedingJoinPoint joinPoint) throws Throwable {
+        String userRoles = validateHeaders();
+
+        boolean isAdmin = toList(userRoles).contains(ADMINISTRATOR.name());
+        if (!isAdmin) throw new OnlyAdminAccessException("403 Permission denied");
+
+        return joinPoint.proceed();
+    }
+
+    @Around("@annotation(HeaderControl)")
     public Object checkHeaders(ProceedingJoinPoint joinPoint) throws Throwable {
+        validateHeaders();
+        return joinPoint.proceed();
+    }
+
+    private String validateHeaders() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 
         String userId = request.getHeader(USER_ID_HEADER);
@@ -32,11 +47,7 @@ public class AccessControlAspect {
         if (userId == null || productsIds == null || userPermissions == null || userRoles == null) {
             throw new MethodUnauthorizedException("401 Unauthorized");
         }
-
-        boolean isAdmin = toList(userRoles).contains(ADMINISTRATOR.name());
-        if (!isAdmin) throw new OnlyAdminAccessException("403 Permission denied");
-
-        return joinPoint.proceed();
+        return userRoles;
     }
 
     private List<String> toList(String value) {
