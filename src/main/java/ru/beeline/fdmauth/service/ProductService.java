@@ -38,25 +38,6 @@ public class ProductService {
         }
     }
 
-    public Product createProduct(BWRole bwRole) {
-        Product product = Product.builder()
-                    .name(bwRole.getProductName())
-                    .alias(bwRole.getCmdbCode())
-                    .build();
-        return productRepository.save(product);
-    }
-    public List<Product> createProducts(List<BWRole> bwRoles) {
-        List<Product> products = new ArrayList<>();
-        for(BWRole bwRole : bwRoles) {
-            Product product = Product.builder()
-                    .name(bwRole.getProductName())
-                    .alias(bwRole.getCmdbCode())
-                    .build();
-            products.add(product);
-        }
-        return productRepository.saveAll(products);
-    }
-
     @Transactional(transactionManager = "transactionManager")
     public List<Product> findOrCreateProducts(UserProfile userProfile) {
         List<Product> products = new ArrayList<>();
@@ -69,7 +50,7 @@ public class ProductService {
                 Product product = productRepository.findAllByAlias(bwRole.getCmdbCode());
                 if(product == null) {
                     try {
-                        product = createProduct(bwRole);
+                        product = productRepository.findById(0L).get();
                     } catch (Exception e) {
                         log.error(e.getMessage());
                     }
