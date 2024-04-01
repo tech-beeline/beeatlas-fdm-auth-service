@@ -10,7 +10,6 @@ import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.dto.bw.BWRole;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 import ru.beeline.fdmauth.repository.ProductRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +28,7 @@ public class ProductService {
     }
 
     public List<Product> findProductsByUser(UserProfile user) {
-        if (user.getUserRoles() == null) return new ArrayList<>();
+        if(user.getUserRoles() == null) return new ArrayList<>();
         if (user.getUserRoles().stream().anyMatch(userRoles ->
                 userRoles.getRole().getPermissions().stream().anyMatch(rolePermissions ->
                         rolePermissions.getPermission().getAlias() == Permission.PermissionType.DESIGN_ARTIFACT))) {
@@ -37,6 +36,25 @@ public class ProductService {
         } else {
             return productRepository.getProductsByProfileId(user.getId());
         }
+    }
+
+    public Product createProduct(BWRole bwRole) {
+        Product product = Product.builder()
+                    .name(bwRole.getProductName())
+                    .alias(bwRole.getCmdbCode())
+                    .build();
+        return productRepository.save(product);
+    }
+    public List<Product> createProducts(List<BWRole> bwRoles) {
+        List<Product> products = new ArrayList<>();
+        for(BWRole bwRole : bwRoles) {
+            Product product = Product.builder()
+                    .name(bwRole.getProductName())
+                    .alias(bwRole.getCmdbCode())
+                    .build();
+            products.add(product);
+        }
+        return productRepository.saveAll(products);
     }
 
     @Transactional(transactionManager = "transactionManager")
@@ -47,18 +65,16 @@ public class ProductService {
 
         if (employeeProductsDTO != null && employeeProductsDTO.getBwRoles() != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
 
-            for (BWRole bwRole : employeeProductsDTO.getBwRoles()) {
+            for(BWRole bwRole : employeeProductsDTO.getBwRoles()) {
                 Product product = productRepository.findAllByAlias(bwRole.getCmdbCode());
-                if (product == null) {
+                if(product == null) {
                     try {
-                        product = productRepository.findById(0L).get();
+                        product = createProduct(bwRole);
                     } catch (Exception e) {
                         log.error(e.getMessage());
                     }
                 }
-                if (product != null && !products.contains(product)) {
-                    products.add(product);
-                }
+                products.add(product);
             }
         } else {
             products.add(productRepository.findById(0L).get());
