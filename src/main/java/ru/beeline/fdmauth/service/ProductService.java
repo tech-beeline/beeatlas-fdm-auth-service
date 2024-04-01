@@ -10,6 +10,7 @@ import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.dto.bw.BWRole;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 import ru.beeline.fdmauth.repository.ProductRepository;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public class ProductService {
     }
 
     public List<Product> findProductsByUser(UserProfile user) {
-        if(user.getUserRoles() == null) return new ArrayList<>();
+        if (user.getUserRoles() == null) return new ArrayList<>();
         if (user.getUserRoles().stream().anyMatch(userRoles ->
                 userRoles.getRole().getPermissions().stream().anyMatch(rolePermissions ->
                         rolePermissions.getPermission().getAlias() == Permission.PermissionType.DESIGN_ARTIFACT))) {
@@ -46,17 +47,21 @@ public class ProductService {
 
         if (employeeProductsDTO != null && employeeProductsDTO.getBwRoles() != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
 
-            for(BWRole bwRole : employeeProductsDTO.getBwRoles()) {
+            for (BWRole bwRole : employeeProductsDTO.getBwRoles()) {
                 Product product = productRepository.findAllByAlias(bwRole.getCmdbCode());
-                if(product == null) {
+                if (product == null) {
                     try {
                         product = productRepository.findById(0L).get();
                     } catch (Exception e) {
                         log.error(e.getMessage());
                     }
                 }
-                products.add(product);
+                if (product != null && !products.contains(product)) {
+                    products.add(product);
+                }
             }
+        } else {
+            products.add(productRepository.findById(0L).get());
         }
         return products;
     }
