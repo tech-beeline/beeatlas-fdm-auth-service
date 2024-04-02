@@ -3,9 +3,10 @@ package ru.beeline.fdmauth.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.beeline.fdmauth.domain.Permission;
-import ru.beeline.fdmauth.dto.PermissionTypeDTO;
 import ru.beeline.fdmauth.repository.PermissionRepository;
 import ru.beeline.fdmauth.dto.PermissionDTO;
+import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

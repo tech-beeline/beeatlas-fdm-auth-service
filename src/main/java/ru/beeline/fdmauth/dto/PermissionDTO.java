@@ -3,7 +3,7 @@ package ru.beeline.fdmauth.dto;
 import lombok.*;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-
+import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

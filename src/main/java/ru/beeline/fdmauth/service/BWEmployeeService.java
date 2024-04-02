@@ -13,7 +13,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.beeline.fdmauth.dto.bw.BWToken;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
-import ru.beeline.fdmauth.exception.UserNotFoundException;
 
 import static ru.beeline.fdmauth.utils.RestHelper.getRestTemplate;
 

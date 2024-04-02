@@ -13,8 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
 
-import static ru.beeline.fdmauth.dto.role.RoleTypeDTO.ADMINISTRATOR;
 import static ru.beeline.fdmauth.utils.Constant.*;
+import static ru.beeline.fdmlib.dto.auth.RoleTypeDTO.ADMINISTRATOR;
 
 @Aspect
 @Component

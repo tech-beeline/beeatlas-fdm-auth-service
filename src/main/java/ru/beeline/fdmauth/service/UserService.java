@@ -4,13 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.beeline.fdmauth.domain.*;
-import ru.beeline.fdmauth.dto.PermissionTypeDTO;
-import ru.beeline.fdmauth.dto.UserInfoDTO;
-import ru.beeline.fdmauth.dto.role.RoleTypeDTO;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
+import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
+import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
+
 import java.sql.Date;
 import java.util.*;
 import java.util.stream.Collectors;

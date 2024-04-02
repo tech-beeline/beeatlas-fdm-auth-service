@@ -10,7 +10,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
 @Getter
 @Setter
 @NoArgsConstructor

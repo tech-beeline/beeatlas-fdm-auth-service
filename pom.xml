@@ -10,7 +10,7 @@
     </parent>
     <groupId>ru.beeline</groupId>
     <artifactId>fdm-auth</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <name>fdm-auth</name>
     <description>fdm-auth</description>
     <properties>
@@ -42,7 +42,11 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>ru.beeline</groupId>
+            <artifactId>fdm-lib</artifactId>
+            <version>0.0.2</version>
+        </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>

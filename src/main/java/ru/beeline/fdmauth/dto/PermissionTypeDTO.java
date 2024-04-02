@@ -1,8 +1,0 @@
-package ru.beeline.fdmauth.dto;
-
-public enum PermissionTypeDTO {
-    CREATE_ARTIFACT,
-    EDIT_ARTIFACT,
-    DELETE_ARTIFACT,
-    DESIGN_ARTIFACT
-}

@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 import ru.beeline.fdmauth.domain.*;
-import ru.beeline.fdmauth.dto.PermissionTypeDTO;
 import ru.beeline.fdmauth.dto.role.RoleCreateDTO;
 import ru.beeline.fdmauth.dto.role.RoleDTO;
 import ru.beeline.fdmauth.exception.DefaultRoleException;
@@ -19,6 +18,8 @@ import ru.beeline.fdmauth.repository.RolePermissionsRepository;
 import ru.beeline.fdmauth.repository.RoleRepository;
 import ru.beeline.fdmauth.repository.UserRolesRepository;
 import ru.beeline.fdmauth.dto.PermissionDTO;
+import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
