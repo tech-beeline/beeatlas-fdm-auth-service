@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.beeline.fdmauth.domain.*;
+import ru.beeline.fdmauth.dto.EmailResponseDTO;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
@@ -185,5 +186,9 @@ public class UserService {
 
     public void addDefaultRole(UserProfile newUser) {
         roleService.saveRolesByIds(newUser, Collections.singletonList(DEFAULT_ROLE_ID));
+    }
+
+    public String getEmailById(Long userId) {
+        return findUserById(userId).getEmail();
     }
 }
