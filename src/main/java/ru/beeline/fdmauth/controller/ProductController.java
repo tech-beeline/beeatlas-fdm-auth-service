@@ -39,14 +39,7 @@ public class ProductController {
     @GetMapping(value = "/user/{id}/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
-        Optional<UserProfile> userOpt = userService.findProfileById(id);
-        if (!userOpt.isPresent()) {
-            String errMessage = String.format("404 Пользователь c id '%s' не найден", id);
-            throw new EntityNotFoundException(errMessage);
-        } else {
-            UserProfile user = userOpt.get();
-            return ResponseEntity.ok(productService.findProductsByUser(user));
-        }
+            return ResponseEntity.ok(productService.findProductsByUser(userService.findUserById(id)));
     }
 
 
@@ -55,11 +48,6 @@ public class ProductController {
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getUserProducts(@RequestHeader(value = USER_ID_HEADER, required = false) String userId){
         UserProfile user = userService.findUserById(Long.valueOf(userId));
-        if (user == null) {
-            String errMessage = String.format("404 Пользователь c id '%s' не найден", userId);
-            throw new EntityNotFoundException(errMessage);
-        } else {
             return ResponseEntity.ok(productService.findProductsByUser(user));
-        }
     }
 }

@@ -3,18 +3,27 @@ package ru.beeline.fdmauth.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.beeline.fdmauth.domain.*;
-import ru.beeline.fdmauth.dto.EmailResponseDTO;
+import ru.beeline.fdmauth.domain.Product;
+import ru.beeline.fdmauth.domain.RolePermission;
+import ru.beeline.fdmauth.domain.UserProducts;
+import ru.beeline.fdmauth.domain.UserProfile;
+import ru.beeline.fdmauth.domain.UserRoles;
+import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
+import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
-import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
-import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
 import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.sql.Date;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +46,7 @@ public class UserService {
 
     public UserProfileDTO createUserProfileVM(UserProfileDTO userProfileVM) {
         UserProfile userProfile = createUserProfile(userProfileVM);
-        if(userProfile != null) return new UserProfileDTO(userProfile);
+        if (userProfile != null) return new UserProfileDTO(userProfile);
         else return null;
     }
 
@@ -51,7 +60,7 @@ public class UserService {
                 .email(userProfileVM.getEmail())
                 .build();
         userProfileRepository.save(newUser);
-        if(userProfileVM.getRoles() != null) {
+        if (userProfileVM.getRoles() != null) {
             List<Long> ids = userProfileVM.getRoles().stream().map(RoleInfoDTO::getId).collect(Collectors.toList());
             roleService.saveRolesByIds(newUser, ids);
         } else {
@@ -62,7 +71,7 @@ public class UserService {
     }
 
 
-    public UserProfile createUser(String idExt,  String fullName, String login, String email){
+    public UserProfile createUser(String idExt, String fullName, String login, String email) {
         UserProfile newUser = UserProfile.builder()
                 .idExt(idExt)
                 .fullName(fullName)
@@ -83,8 +92,8 @@ public class UserService {
     }
 
     public UserProfile findUserById(Long id) {
-        Optional<UserProfile> userOpt = userProfileRepository.findById(id);
-        return userOpt.orElse(null);
+        return userProfileRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
     }
 
     public UserProfile findProfileByLogin(String login) {
@@ -102,7 +111,7 @@ public class UserService {
     @Transactional(transactionManager = "transactionManager")
     public UserProfileDTO setRoles(UserProfile userProfile, List<RoleInfoDTO> roles) {
         List<Long> ids = roles.stream().map(RoleInfoDTO::getId).collect(Collectors.toList());
-        if(!ids.isEmpty()) {
+        if (!ids.isEmpty()) {
             roleService.deleteAllByUserProfileId(userProfile.getId());
             roleService.saveRolesByIds(userProfile, ids);
         }
@@ -125,7 +134,7 @@ public class UserService {
     }
 
     public void updateUserProducts(UserProfile userProfile, List<Product> products) {
-        if(!products.isEmpty()) {
+        if (!products.isEmpty()) {
             List<UserProducts> userProducts = new ArrayList<>();
             for (Product product : products) {
                 UserProducts userProduct = UserProducts.builder()
@@ -141,7 +150,7 @@ public class UserService {
 
 
     public UserInfoDTO getInfo(UserProfile userProfile) {
-        if(userProfile != null) {
+        if (userProfile != null) {
             List<UserRoles> userRoles = roleService.findUserRolesByUser(userProfile);
             return UserInfoDTO.builder()
                     .id(userProfile.getId())
@@ -165,10 +174,10 @@ public class UserService {
 
     private List<PermissionTypeDTO> getPermissionsByUser(UserProfile userProfile) {
         Set<PermissionTypeDTO> permissionTypes = new HashSet<>();
-        if(userProfile.getUserRoles() != null) {
-            for(UserRoles userRole : userProfile.getUserRoles()) {
+        if (userProfile.getUserRoles() != null) {
+            for (UserRoles userRole : userProfile.getUserRoles()) {
                 List<RolePermission> rolePermissions = userRole.getRole().getPermissions();
-                if(rolePermissions != null) {
+                if (rolePermissions != null) {
                     permissionTypes.addAll(rolePermissions.stream().map(rp -> PermissionTypeDTO.valueOf(rp.getPermission().getAlias().name())).toList());
                 }
             }
