@@ -8,10 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.beeline.fdmauth.dto.EmailResponseDTO;
-import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
-import ru.beeline.fdmauth.service.BWEmployeeService;
 import ru.beeline.fdmauth.service.UserService;
+import ru.beeline.fdmlib.dto.auth.EmailResponseDTO;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
