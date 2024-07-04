@@ -135,6 +135,7 @@ public class UserController {
                                                    @RequestParam String fullName,
                                                    @RequestParam String idExt
                                                    ) {
+        log.info("login is " + login);
         UserProfile userProfile = userService.findProfileByLogin(login);
         if(userProfile == null) {
             log.info("userProfile is null, create new");
@@ -142,6 +143,7 @@ public class UserController {
             userService.addDefaultRole(userProfile);
             userProfile = userService.findUserById(userProfile.getId());
         } else {
+            log.info("userProfile exist");
             if(userProfile.getUserProducts() == null || userProfile.getUserProducts().isEmpty()) {
                 log.info("userProfile without product, create new");
                 userService.findAndSaveProducts(userProfile);

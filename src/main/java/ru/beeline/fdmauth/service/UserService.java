@@ -90,7 +90,7 @@ public class UserService {
     }
 
     public UserProfile findProfileByIdExt(String idExt) {
-        return userProfileRepository.findUserProfileByIdExt(idExt);
+        return userProfileRepository.findByIdExt(idExt);
     }
 
     public UserProfile findUserById(Long id) {
@@ -99,11 +99,11 @@ public class UserService {
     }
 
     public UserProfile findProfileByLogin(String login) {
-        return userProfileRepository.findUserProfileByLogin(login);
+        return userProfileRepository.findByLogin(login);
     }
 
     public UserProfile findProfileByEmail(String email) {
-        return userProfileRepository.findUserProfileByEmail(email);
+        return userProfileRepository.findByEmail(email);
     }
 
     public Long hasLinkProductIdWithProfileId(Long profileId, String productId) {
