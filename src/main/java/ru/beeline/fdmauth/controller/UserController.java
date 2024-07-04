@@ -5,31 +5,20 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.aspect.AccessControl;
 import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
-import ru.beeline.fdmauth.dto.UserProfileDTO;
-import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
+import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
+import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
@@ -76,7 +65,7 @@ public class UserController {
     public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
 
-        if (userProfile != null) {
+        if(userProfile != null) {
             return ResponseEntity.ok(new UserProfileDTO(userProfile));
         } else {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -90,7 +79,7 @@ public class UserController {
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if (userProfile == null) {
+        if(userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
@@ -103,14 +92,14 @@ public class UserController {
     @ApiOperation(value = "Получение разрешений профиля")
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if (userProfile == null) {
+        if(userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
         Set<Permission> rPermissions = new HashSet<>();
-        for (UserRoles role : userProfile.getUserRoles()) {
+        for(UserRoles role : userProfile.getUserRoles()){
             List<Permission> rolePermissions = roleService.getPermissions(role.getId());
-            if (!rolePermissions.isEmpty()) rPermissions.addAll(rolePermissions);
+            if(!rolePermissions.isEmpty()) rPermissions.addAll(rolePermissions);
         }
         Set<PermissionDTO> permissions = permissionService.getUserPermissions(rPermissions);
         return ResponseEntity.ok(permissions);
@@ -123,7 +112,7 @@ public class UserController {
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login, @RequestBody List<RoleInfoDTO> roles) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if (userProfile != null) {
+        if(userProfile != null) {
             return ResponseEntity.ok(userService.setRoles(userProfile, roles));
         } else {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -145,7 +134,19 @@ public class UserController {
                                                    @RequestParam String email,
                                                    @RequestParam String fullName,
                                                    @RequestParam String idExt
-    ) {
-        return ResponseEntity.ok(userService.getUserInfo(login, email, fullName, idExt));
+                                                   ) {
+        UserProfile userProfile = userService.findProfileByLogin(login);
+        if(userProfile == null) {
+            log.info("userProfile is null, create new");
+            userProfile = userService.createNewUserAndProducts(login, email, fullName, idExt);
+            userService.addDefaultRole(userProfile);
+            userProfile = userService.findUserById(userProfile.getId());
+        } else {
+            if(userProfile.getUserProducts() == null || userProfile.getUserProducts().isEmpty()) {
+                log.info("userProfile without product, create new");
+                userService.findAndSaveProducts(userProfile);
+            }
+        }
+        return ResponseEntity.ok(userService.getInfo(userProfile));
     }
 }
