@@ -1,5 +1,6 @@
 package ru.beeline.fdmauth.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -44,33 +46,7 @@ public class UserService {
         return userProfileRepository.findAll();
     }
 
-    public UserProfileDTO createUserProfileVM(UserProfileDTO userProfileVM) {
-        UserProfile userProfile = createUserProfile(userProfileVM);
-        if (userProfile != null) return new UserProfileDTO(userProfile);
-        else return null;
-    }
-
     @Transactional(transactionManager = "transactionManager")
-    public UserProfile createUserProfile(UserProfileDTO userProfileVM) {
-        UserProfile newUser = UserProfile.builder()
-                .idExt(userProfileVM.getIdExt())
-                .fullName(userProfileVM.getFullName())
-                .login(userProfileVM.getLogin())
-                .lastLogin(new Date(System.currentTimeMillis()))
-                .email(userProfileVM.getEmail())
-                .build();
-        userProfileRepository.save(newUser);
-        if (userProfileVM.getRoles() != null) {
-            List<Long> ids = userProfileVM.getRoles().stream().map(RoleInfoDTO::getId).collect(Collectors.toList());
-            roleService.saveRolesByIds(newUser, ids);
-        } else {
-            roleService.saveRolesByIds(newUser, Collections.singletonList(1L));
-        }
-        Optional<UserProfile> userProfile = userProfileRepository.findById(newUser.getId());
-        return userProfile.orElse(null);
-    }
-
-
     public UserProfile createUser(String idExt, String fullName, String login, String email) {
         UserProfile newUser = UserProfile.builder()
                 .idExt(idExt)
@@ -83,14 +59,6 @@ public class UserService {
         return newUser;
     }
 
-    public Optional<UserProfile> findProfileById(Long id) {
-        return userProfileRepository.findById(id);
-    }
-
-    public UserProfile findProfileByIdExt(String idExt) {
-        return userProfileRepository.findUserProfileByIdExt(idExt);
-    }
-
     public UserProfile findUserById(Long id) {
         return userProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
@@ -98,14 +66,6 @@ public class UserService {
 
     public UserProfile findProfileByLogin(String login) {
         return userProfileRepository.findUserProfileByLogin(login);
-    }
-
-    public UserProfile findProfileByEmail(String email) {
-        return userProfileRepository.findUserProfileByEmail(email);
-    }
-
-    public Long hasLinkProductIdWithProfileId(Long profileId, String productId) {
-        return userProfileRepository.hasLinkProductIdWithProfileId(profileId, productId);
     }
 
     @Transactional(transactionManager = "transactionManager")
@@ -120,19 +80,12 @@ public class UserService {
         return updatedUserProfile.map(UserProfileDTO::new).orElse(null);
     }
 
-
-    @Transactional(transactionManager = "transactionManager")
-    public void updateLastLogin(UserProfile userProfile) {
-        userProfile.setLastLogin(new Date(System.currentTimeMillis()));
-        userProfileRepository.save(userProfile);
-    }
-
-
     public Boolean checkProductExistenceById(Long id) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(id);
         return userOpt.isPresent();
     }
 
+    @Transactional(transactionManager = "transactionManager")
     public void updateUserProducts(UserProfile userProfile, List<Product> products) {
         if (!products.isEmpty()) {
             List<UserProducts> userProducts = new ArrayList<>();
@@ -148,10 +101,31 @@ public class UserService {
         }
     }
 
+    @Transactional(transactionManager = "transactionManager")
+    public UserInfoDTO getUserInfo(String login,
+                                   String email,
+                                   String fullName,
+                                   String idExt) {
+        UserProfile userProfile = findProfileByLogin(login);
+        log.info(String.format("UserProfile: %s", userProfile));
+        if (userProfile == null) {
+            userProfile = createNewUserAndProducts(login, email, fullName, idExt);
+            log.info(String.format("Created userProfile: %s", userProfile));
+        } else {
+            if (userProfile.getUserProducts() == null
+                    || userProfile.getUserProducts().isEmpty()) {
+                findAndSaveProducts(userProfile);
+                log.info(String.format("Product to userProfile was added: %s", userProfile.getUserProducts()));
+            }
+        }
+        return getInfo(userProfile);
+    }
+
 
     public UserInfoDTO getInfo(UserProfile userProfile) {
         if (userProfile != null) {
             List<UserRoles> userRoles = roleService.findUserRolesByUser(userProfile);
+            log.info(String.format("UserRoles: %s", userRoles));
             return UserInfoDTO.builder()
                     .id(userProfile.getId())
                     .productsIds(userProfile.getUserProducts() != null ?
@@ -159,7 +133,7 @@ public class UserService {
                                     .map(up -> up.getProduct().getId()).collect(Collectors.toList()) : new ArrayList<>())
                     .roles(userRoles != null ?
                             userRoles.stream()
-                                    .map(ur -> RoleTypeDTO.valueOf(ur.getRole().getAlias().name())).collect(Collectors.toList()) : new ArrayList<>())
+                                    .map(role -> RoleTypeDTO.valueOf(role.getRole().getAlias().name())).collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
         } else throw new UserNotFoundException("404 Пользователь не найден");
@@ -174,15 +148,21 @@ public class UserService {
 
     private List<PermissionTypeDTO> getPermissionsByUser(UserProfile userProfile) {
         Set<PermissionTypeDTO> permissionTypes = new HashSet<>();
+        log.info(String.format("add permissions of userProfile: %s", userProfile));
         if (userProfile.getUserRoles() != null) {
+            log.info(String.format("add permissions of userRole: %s", userProfile.getUserRoles()));
             for (UserRoles userRole : userProfile.getUserRoles()) {
                 List<RolePermission> rolePermissions = userRole.getRole().getPermissions();
+                log.info(String.format("add permissions of rolePermissions: %s", rolePermissions));
                 if (rolePermissions != null) {
-                    permissionTypes.addAll(rolePermissions.stream().map(rp -> PermissionTypeDTO.valueOf(rp.getPermission().getAlias().name())).toList());
+                    log.info(String.format("permission of role '%s': %s", userRole.getRole(), rolePermissions));
+                    List<PermissionTypeDTO> permissions = rolePermissions.stream().map(rp -> PermissionTypeDTO.valueOf(rp.getPermission().getAlias().name())).toList();
+                    log.info(String.format("add permissions: %s", permissions));
+                    permissionTypes.addAll(permissions);
                 }
             }
         }
-
+        log.info(String.format("Permissions: %s", permissionTypes));
         return permissionTypes.stream().toList();
     }
 
@@ -190,11 +170,8 @@ public class UserService {
     public UserProfile createNewUserAndProducts(String login, String email, String fullName, String idExt) {
         UserProfile newUser = createUser(idExt, fullName, login, email);
         findAndSaveProducts(newUser);
-        return newUser;
-    }
-
-    public void addDefaultRole(UserProfile newUser) {
         roleService.saveRolesByIds(newUser, Collections.singletonList(DEFAULT_ROLE_ID));
+        return findUserById(newUser.getId());
     }
 
     public String getEmailById(Long userId) {

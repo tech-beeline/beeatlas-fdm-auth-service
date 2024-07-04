@@ -108,6 +108,7 @@ public class RoleService {
         }
     }
 
+    @Transactional(transactionManager = "transactionManager")
     private Role changeRole(Long id, RoleDTO role) {
         Optional<Role> currentRoleOpt = roleRepository.findById(id);
         if(currentRoleOpt.isEmpty()) throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
