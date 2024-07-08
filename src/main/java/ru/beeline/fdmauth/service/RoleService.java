@@ -208,6 +208,7 @@ public class RoleService {
                 forSave.add(userRole);
             }
             userRolesRepository.saveAll(forSave);
+            userProfile.setUserRoles(forSave);
         }
     }
 

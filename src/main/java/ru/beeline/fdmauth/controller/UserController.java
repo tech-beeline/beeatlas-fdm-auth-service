@@ -142,6 +142,7 @@ public class UserController {
             userProfile = userService.createNewUserAndProducts(login, email, fullName, idExt);
             userService.addDefaultRole(userProfile);
             userProfile = userService.findUserById(userProfile.getId());
+            log.info("userProfile has been created with id=" + userProfile.getId());
         } else {
             log.info("userProfile exist");
             if(userProfile.getUserProducts() == null || userProfile.getUserProducts().isEmpty()) {
