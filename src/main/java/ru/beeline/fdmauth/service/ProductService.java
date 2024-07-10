@@ -45,17 +45,6 @@ public class ProductService {
                     .build();
         return productRepository.save(product);
     }
-    public List<Product> createProducts(List<BWRole> bwRoles) {
-        List<Product> products = new ArrayList<>();
-        for(BWRole bwRole : bwRoles) {
-            Product product = Product.builder()
-                    .name(bwRole.getProductName())
-                    .alias(bwRole.getCmdbCode())
-                    .build();
-            products.add(product);
-        }
-        return productRepository.saveAll(products);
-    }
 
     @Transactional(transactionManager = "transactionManager")
     public List<Product> findOrCreateProducts(UserProfile userProfile) {
