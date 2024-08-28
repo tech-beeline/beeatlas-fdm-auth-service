@@ -1,7 +1,17 @@
 env:
-  SPRING_PROFILES_ACTIVE: test
-  SPRING_DATASOURCE_URL: "vault:eafdmmart/data/test/fdm#url"
-  SPRING_DATASOURCE_USERNAME: "vault:eafdmmart/data/test/fdm#username"
-  SPRING_DATASOURCE_PASSWORD: "vault:eafdmmart/data/test/fdm#password"
-  SPRING_DATASOURCE_DRIVER_CLASS_NAME: "vault:eafdmmart/data/test/fdm#driver"
-  JWKS: "vault:eafdmmart/data/test/fdm#jwks"
+  SPRING_PROFILES_ACTIVE: e2e
+  SPRING_DATASOURCE_URL: "vault:eafdmmart/data/test/e2e/fdm#url"
+  SPRING_DATASOURCE_USERNAME: "vault:eafdmmart/data/test/e2e/fdm#username"
+  SPRING_DATASOURCE_PASSWORD: "vault:eafdmmart/data/test/e2e/fdm#password"
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: "vault:eafdmmart/data/test/e2e/fdm#driver"
+  GWURL: "vault:eafdmmart/data/test/e2e/fdm#mapicurl"
+  AUTHBASIC: "vault:eafdmmart/data/test/e2e/fdm#mapicauth"
+  TECHUSER: "vault:eafdmmart/data/test/e2e/fdm#techuser"
+  TECHPASSWORD: "vault:eafdmmart/data/test/e2e/fdm#techpassword"
+  
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type, authorization
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/enable-cors: 'true'

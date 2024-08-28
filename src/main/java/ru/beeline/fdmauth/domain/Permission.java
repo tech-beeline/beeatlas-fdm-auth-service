@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "permission")
+@Table(name = "permission", schema = "user_auth")
 public class Permission {
 
     @Id
@@ -29,9 +29,6 @@ public class Permission {
 
     @Enumerated(value = EnumType.STRING)
     private PermissionType alias;
-
-    @Column(name = "group_name")
-    private String group;
 
     private boolean deleted;
 
@@ -59,7 +56,6 @@ public class Permission {
                 ", name='" + name + '\'' +
                 ", descr='" + descr + '\'' +
                 ", alias=" + alias +
-                ", group='" + group + '\'' +
                 ", deleted=" + deleted +
                 '}';
     }

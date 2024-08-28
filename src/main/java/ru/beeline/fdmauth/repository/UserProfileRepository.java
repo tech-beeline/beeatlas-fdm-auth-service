@@ -9,9 +9,11 @@ import ru.beeline.fdmauth.domain.UserProfile;
 
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
-    UserProfile findUserProfileByLogin(String login);
+    UserProfile findByLogin(String login);
 
-    UserProfile findUserProfileByEmail(String email);
+    UserProfile findByEmail(String email);
+
+    UserProfile findByIdExt(String idExt);
 
     @Query(value = "SELECT COUNT(*) FROM user_product_ext " +
             "WHERE user_product_ext.id_profile = :profileId AND user_product_ext.id_product_ext = :productId", nativeQuery = true)

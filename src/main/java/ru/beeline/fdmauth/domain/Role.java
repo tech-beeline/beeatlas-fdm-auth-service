@@ -2,10 +2,8 @@ package ru.beeline.fdmauth.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -14,12 +12,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "role")
+@Table(name = "role", schema = "user_auth")
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_id_generator")
-    @SequenceGenerator(name = "role_id_generator", sequenceName = "role_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator="role_id_seq")
+    @SequenceGenerator(name="role_id_seq", sequenceName="role_id_seq", allocationSize=1)
     private Long id;
 
     private String name;
@@ -31,15 +29,8 @@ public class Role {
 
     private boolean deleted;
 
-    @Column(name = "is_default")
-    private boolean isDefault;
-
     public boolean isDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(boolean isDefault) {
-        this.isDefault = isDefault;
+        return name.equals(RoleType.DEFAULT.roleName) || name.equals(RoleType.ADMINISTRATOR.roleName);
     }
 
     @ApiModelProperty(hidden = true)
@@ -51,21 +42,12 @@ public class Role {
     @OneToMany(mappedBy = "role")
     List<UserRoles> userRoles;
 
+    @Getter
     public enum RoleType {
         DEFAULT("Сотрудник"),
-        ADMINISTRATOR("Администратор"),
-        PRODUCT_OWNER("Владелец продукта"),
-        PRODUCT_TEAM_ANALYST_ARCHITECT("Аналитик/Архитектор"),
-        PRODUCT_TEAM_MEMBER("Член команды"),
-        ENTERPRISE_ARCHITECT("Корп архитектор"),
-        IT_MANAGER("ИТ-менеджер"),
-        DOMAIN_OWNER("Владелец домена");
+        ADMINISTRATOR("Администратор");
 
-        private String roleName;
-
-        public String getRoleName() {
-            return roleName;
-        }
+        private final String roleName;
 
         private static final RoleType[] values = RoleType.values();
 

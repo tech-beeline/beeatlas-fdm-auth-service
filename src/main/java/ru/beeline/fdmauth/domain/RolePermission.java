@@ -12,7 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "role_permissions")
+@Table(name = "role_permissions", schema = "user_auth")
 public class RolePermission {
 
     @Id
@@ -30,5 +30,7 @@ public class RolePermission {
     @JoinColumn(name = "id_role")
     private Role role;
 
+    @Column(name = "b_set")
+    private boolean bSet;
 
 }

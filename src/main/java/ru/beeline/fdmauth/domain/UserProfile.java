@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_profile")
+@Table(name = "user_profile", schema = "user_auth")
 public class UserProfile {
 
     @Id
@@ -45,5 +45,11 @@ public class UserProfile {
     @ApiModelProperty(hidden = true)
     @OneToMany(mappedBy = "userProfile")
     List<UserRoles> userRoles;
+
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_profile")
+    List<UserProducts> userProducts;
 
 }
