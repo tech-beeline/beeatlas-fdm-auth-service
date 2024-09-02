@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.beeline.fdmauth.service.BWEmployeeService;
+import ru.beeline.fdmauth.client.BWEmployeeClient;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -15,12 +15,12 @@ public class ConfigurationController {
 
 
     @Autowired
-    private BWEmployeeService bwEmployeeService;
+    private BWEmployeeClient bwEmployeeClient;
 
     @GetMapping(value = "/api/runtime/v1/mapic/token", produces = "application/json")
     @ApiOperation(value = "Обновление и получение токена MAPIC", response = String.class)
     public String getEmployeeProducts() {
-        bwEmployeeService.updateAccessToken();
-        return bwEmployeeService.getAccessToken();
+        bwEmployeeClient.updateAccessToken();
+        return bwEmployeeClient.getAccessToken();
     }
 }
