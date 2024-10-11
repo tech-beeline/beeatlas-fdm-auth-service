@@ -76,6 +76,7 @@ public class UserService {
                 .lastLogin(new Date(System.currentTimeMillis()))
                 .email(email)
                 .build();
+        log.info("Create new User:" + newUser);
         userProfileRepository.save(newUser);
         return newUser;
     }
@@ -96,6 +97,7 @@ public class UserService {
             roleService.deleteAllByUserProfileId(userProfile.getId());
             roleService.saveRolesByIds(userProfile, ids);
         }
+        userProfileRepository.save(userProfile);
 
         Optional<UserProfile> updatedUserProfile = userProfileRepository.findById(userProfile.getId());
         return updatedUserProfile.map(UserProfileDTO::new).orElse(null);
@@ -149,6 +151,7 @@ public class UserService {
 
     public void addDefaultRole(UserProfile newUser) {
         roleService.saveRolesByIds(newUser, Collections.singletonList(DEFAULT_ROLE_ID));
+        userProfileRepository.save(newUser);
     }
 
     public String getEmailById(Long userId) {
