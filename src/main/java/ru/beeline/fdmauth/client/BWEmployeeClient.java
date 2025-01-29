@@ -1,6 +1,7 @@
-package ru.beeline.fdmauth.service;
+package ru.beeline.fdmauth.client;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,11 +15,13 @@ import org.springframework.web.client.RestTemplate;
 import ru.beeline.fdmauth.dto.bw.BWToken;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 
-import static ru.beeline.fdmauth.utils.RestHelper.getRestTemplate;
 
 @Slf4j
 @Service
-public class BWEmployeeService {
+public class BWEmployeeClient {
+
+    @Autowired
+    RestTemplate restTemplate;
 
     private static String accessToken = "";
 
@@ -36,16 +39,15 @@ public class BWEmployeeService {
 
     private static int attemptCounter = 0;
 
-    public EmployeeProductsDTO getEmployeeInfo(String employeeLogin){
+    public EmployeeProductsDTO getEmployeeInfo(String employeeLogin) {
         EmployeeProductsDTO employeeProductsDTO = new EmployeeProductsDTO();
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "Bearer "+ accessToken);
+            headers.set("Authorization", "Bearer " + accessToken);
 
             HttpEntity<String> entity = new HttpEntity<>(headers);
 
-            final RestTemplate restTemplate = getRestTemplate();
 
             employeeProductsDTO = restTemplate.exchange(
                     gwUrl + "/bw-roles/v0/v2/users/action/search/by-login/"
@@ -53,7 +55,7 @@ public class BWEmployeeService {
                     HttpMethod.GET, entity, EmployeeProductsDTO.class).getBody();
         } catch (HttpClientErrorException.Unauthorized e) {
             log.error(e.getMessage());
-            if(attemptCounter < 3) {
+            if (attemptCounter < 3) {
                 attemptCounter++;
                 log.info("The MAPIC token update attempt: " + attemptCounter);
                 updateAccessToken();
@@ -76,7 +78,7 @@ public class BWEmployeeService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            headers.set("Authorization", "Basic "+ authBasic);
+            headers.set("Authorization", "Basic " + authBasic);
 
             MultiValueMap<String, String> bodyParamMap = new LinkedMultiValueMap<>();
             bodyParamMap.add("grant_type", "client_credentials");
@@ -84,7 +86,6 @@ public class BWEmployeeService {
             bodyParamMap.add("password", techPassword);
 
             HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(bodyParamMap, headers);
-            final RestTemplate restTemplate = getRestTemplate();
 
             BWToken token = restTemplate.exchange(
                     gwUrl + "/gw-auth/1.0.0/token",
@@ -98,7 +99,7 @@ public class BWEmployeeService {
         }
     }
 
-    public String getAccessToken(){
+    public String getAccessToken() {
         return accessToken;
     }
 
