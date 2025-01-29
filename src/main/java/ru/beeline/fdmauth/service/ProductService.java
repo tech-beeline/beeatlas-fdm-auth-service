@@ -45,8 +45,6 @@ public class ProductService {
         if (employeeProductsDTO != null && employeeProductsDTO.getBwRoles() != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
             List<String> codes = employeeProductsDTO.getBwRoles().stream().map(BWRole::getCmdbCode).collect(Collectors.toList());
             productClient.postProduct(codes, userProfile.getId().toString());
-        } else {
-            productClient.postProduct(List.of("BLN"), userProfile.getId().toString());
         }
     }
 
