@@ -135,6 +135,21 @@ public class UserController {
                                                    @RequestParam String fullName,
                                                    @RequestParam String idExt
                                                    ) {
-        return ResponseEntity.ok(userService.getUserInfo(login, email, fullName, idExt));
+        log.info("login is " + login);
+        UserProfile userProfile = userService.findProfileByLogin(login);
+        if(userProfile == null) {
+            log.info("userProfile is null, create new");
+            userProfile = userService.createNewUserAndProducts(login, email, fullName, idExt);
+            userService.addDefaultRole(userProfile);
+            userProfile = userService.findUserById(userProfile.getId());
+            log.info("userProfile has been created with id=" + userProfile.getId());
+        } else {
+            log.info("userProfile exist");
+            if(userProfile.getUserProducts() == null || userProfile.getUserProducts().isEmpty()) {
+                log.info("userProfile without product, create new");
+                userService.findAndSaveProducts(userProfile);
+            }
+        }
+        return ResponseEntity.ok(userService.getInfo(userProfile));
     }
 }

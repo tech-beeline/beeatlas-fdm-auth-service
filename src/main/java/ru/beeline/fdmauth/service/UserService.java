@@ -4,11 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.beeline.fdmauth.client.ProductClient;
+import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.RolePermission;
+import ru.beeline.fdmauth.domain.UserProducts;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
-import ru.beeline.fdmauth.dto.ProductDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.exception.EntityNotFoundException;
@@ -42,31 +42,36 @@ public class UserService {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private ProductClient productClient;
-
     public List<UserProfile> getAllUsers() {
         return userProfileRepository.findAll();
     }
 
-    public UserInfoDTO getUserInfo(String login,
-                                   String email,
-                                   String fullName,
-                                   String idExt) {
-        log.info("login is " + login);
-        UserProfile userProfile = findProfileByLogin(login);
-        List<Long> productIds = new ArrayList<>();
-        if (userProfile == null) {
-            log.info("userProfile is null, create new");
-            userProfile = createNewUserAndProducts(login, email, fullName, idExt);
-            addDefaultRole(userProfile);
-            userProfile = findUserById(userProfile.getId());
-            log.info("userProfile has been created with id=" + userProfile.getId());
-        }
-        List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId());
-        productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
-        return getInfo(userProfile, productIds);
+    public UserProfileDTO createUserProfileVM(UserProfileDTO userProfileVM) {
+        UserProfile userProfile = createUserProfile(userProfileVM);
+        if (userProfile != null) return new UserProfileDTO(userProfile);
+        else return null;
     }
+
+    @Transactional(transactionManager = "transactionManager")
+    public UserProfile createUserProfile(UserProfileDTO userProfileVM) {
+        UserProfile newUser = UserProfile.builder()
+                .idExt(userProfileVM.getIdExt())
+                .fullName(userProfileVM.getFullName())
+                .login(userProfileVM.getLogin())
+                .lastLogin(new Date(System.currentTimeMillis()))
+                .email(userProfileVM.getEmail())
+                .build();
+        userProfileRepository.save(newUser);
+        if (userProfileVM.getRoles() != null) {
+            List<Long> ids = userProfileVM.getRoles().stream().map(RoleInfoDTO::getId).collect(Collectors.toList());
+            roleService.saveRolesByIds(newUser, ids);
+        } else {
+            roleService.saveRolesByIds(newUser, Collections.singletonList(1L));
+        }
+        Optional<UserProfile> userProfile = userProfileRepository.findById(newUser.getId());
+        return userProfile.orElse(null);
+    }
+
 
     public UserProfile createUser(String idExt, String fullName, String login, String email) {
         UserProfile newUser = UserProfile.builder()
@@ -80,6 +85,14 @@ public class UserService {
         return newUser;
     }
 
+    public Optional<UserProfile> findProfileById(Long id) {
+        return userProfileRepository.findById(id);
+    }
+
+    public UserProfile findProfileByIdExt(String idExt) {
+        return userProfileRepository.findByIdExt(idExt);
+    }
+
     public UserProfile findUserById(Long id) {
         return userProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
@@ -87,6 +100,14 @@ public class UserService {
 
     public UserProfile findProfileByLogin(String login) {
         return userProfileRepository.findByLogin(login);
+    }
+
+    public UserProfile findProfileByEmail(String email) {
+        return userProfileRepository.findByEmail(email);
+    }
+
+    public Long hasLinkProductIdWithProfileId(Long profileId, String productId) {
+        return userProfileRepository.hasLinkProductIdWithProfileId(profileId, productId);
     }
 
     @Transactional(transactionManager = "transactionManager")
@@ -101,24 +122,57 @@ public class UserService {
         return updatedUserProfile.map(UserProfileDTO::new).orElse(null);
     }
 
+
+    @Transactional(transactionManager = "transactionManager")
+    public void updateLastLogin(UserProfile userProfile) {
+        userProfile.setLastLogin(new Date(System.currentTimeMillis()));
+        userProfileRepository.save(userProfile);
+    }
+
+
     public Boolean checkProductExistenceById(Long id) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(id);
         return userOpt.isPresent();
     }
 
-    public UserInfoDTO getInfo(UserProfile userProfile, List<Long> productIds) {
+    public void updateUserProducts(UserProfile userProfile, List<Product> products) {
+        if (!products.isEmpty()) {
+            List<UserProducts> userProducts = new ArrayList<>();
+            for (Product product : products) {
+                UserProducts userProduct = UserProducts.builder()
+                        .product(product)
+                        .userProfile(userProfile)
+                        .build();
+                userProducts.add(userProduct);
+            }
+            userProfile.setUserProducts(userProducts);
+            userProfileRepository.save(userProfile);
+        }
+    }
+
+
+    public UserInfoDTO getInfo(UserProfile userProfile) {
         if (userProfile != null) {
             List<UserRoles> userRoles = roleService.findUserRolesByUser(userProfile);
             log.info("userRoles size is " + userRoles.size());
             return UserInfoDTO.builder()
                     .id(userProfile.getId())
-                    .productsIds(productIds)
+                    .productsIds(userProfile.getUserProducts() != null ?
+                            userProfile.getUserProducts().stream()
+                                    .map(up -> up.getProduct().getId()).collect(Collectors.toList()) : new ArrayList<>())
                     .roles(userRoles != null ?
                             userRoles.stream()
                                     .map(ur -> RoleTypeDTO.valueOf(ur.getRole().getAlias().name())).collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
         } else throw new UserNotFoundException("404 Пользователь не найден");
+    }
+
+    public void findAndSaveProducts(UserProfile userProfile) {
+        List<Product> products = productService.findOrCreateProducts(userProfile);
+        if (!products.isEmpty()) {
+            updateUserProducts(userProfile, products);
+        }
     }
 
     private List<PermissionTypeDTO> getPermissionsByUser(UserProfile userProfile) {
@@ -143,7 +197,7 @@ public class UserService {
     @Transactional(transactionManager = "transactionManager")
     public UserProfile createNewUserAndProducts(String login, String email, String fullName, String idExt) {
         UserProfile newUser = createUser(idExt, fullName, login, email);
-        productService.updateProducts(newUser);
+        findAndSaveProducts(newUser);
         return newUser;
     }
 
