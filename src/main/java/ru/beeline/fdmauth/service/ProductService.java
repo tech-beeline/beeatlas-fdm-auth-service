@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.beeline.fdmauth.client.BWEmployeeClient;
 import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
@@ -21,11 +22,7 @@ public class ProductService {
     ProductRepository productRepository;
 
     @Autowired
-    private BWEmployeeService bwEmployeeService;
-
-    public Product findProductById(Long productId) {
-        return productRepository.findById(productId).orElseGet(null);
-    }
+    private BWEmployeeClient bwEmployeeClient;
 
     public List<Product> findProductsByUser(UserProfile user) {
         if(user.getUserRoles() == null) return new ArrayList<>();
@@ -50,7 +47,7 @@ public class ProductService {
     public List<Product> findOrCreateProducts(UserProfile userProfile) {
         List<Product> products = new ArrayList<>();
 
-        EmployeeProductsDTO employeeProductsDTO = bwEmployeeService.getEmployeeInfo(userProfile.getLogin());
+        EmployeeProductsDTO employeeProductsDTO = bwEmployeeClient.getEmployeeInfo(userProfile.getLogin());
 
         if (employeeProductsDTO != null && employeeProductsDTO.getBwRoles() != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
 

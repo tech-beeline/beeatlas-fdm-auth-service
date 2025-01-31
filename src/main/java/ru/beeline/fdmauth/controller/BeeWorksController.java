@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
-import ru.beeline.fdmauth.service.BWEmployeeService;
+import ru.beeline.fdmauth.client.BWEmployeeClient;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -14,11 +14,11 @@ import ru.beeline.fdmauth.service.BWEmployeeService;
 public class BeeWorksController {
 
     @Autowired
-    private BWEmployeeService bwEmployeeService;
+    private BWEmployeeClient bwEmployeeClient;
 
     @GetMapping(value = "/products/{login}", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов из BeeWorks по логину пользователя", response = EmployeeProductsDTO.class)
     public EmployeeProductsDTO getEmployeeProducts(@PathVariable String login) {
-        return bwEmployeeService.getEmployeeInfo(login);
+        return bwEmployeeClient.getEmployeeInfo(login);
     }
 }
