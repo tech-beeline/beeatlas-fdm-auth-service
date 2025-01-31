@@ -65,7 +65,9 @@ public class UserService {
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
         List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId());
-        productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
+        if(productDTOList != null) {
+            productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
+        }
         return getInfo(userProfile, productIds);
     }
 
