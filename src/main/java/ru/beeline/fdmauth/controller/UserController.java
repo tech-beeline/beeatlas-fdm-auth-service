@@ -73,7 +73,6 @@ public class UserController {
         }
     }
 
-    @AccessControl
     @GetMapping(value = "/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
