@@ -13,7 +13,6 @@ import ru.beeline.fdmauth.service.ProductService;
 import ru.beeline.fdmauth.service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.beeline.fdmauth.utils.Constant.USER_ID_HEADER;
 

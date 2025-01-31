@@ -3,17 +3,19 @@ package ru.beeline.fdmauth.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.beeline.fdmauth.client.BWEmployeeClient;
+import ru.beeline.fdmauth.client.ProductClient;
 import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.Product;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.dto.bw.BWRole;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 import ru.beeline.fdmauth.repository.ProductRepository;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -22,10 +24,13 @@ public class ProductService {
     ProductRepository productRepository;
 
     @Autowired
+    ProductClient productClient;
+
+    @Autowired
     private BWEmployeeClient bwEmployeeClient;
 
     public List<Product> findProductsByUser(UserProfile user) {
-        if(user.getUserRoles() == null) return new ArrayList<>();
+        if (user.getUserRoles() == null) return new ArrayList<>();
         if (user.getUserRoles().stream().anyMatch(userRoles ->
                 userRoles.getRole().getPermissions().stream().anyMatch(rolePermissions ->
                         rolePermissions.getPermission().getAlias() == Permission.PermissionType.DESIGN_ARTIFACT))) {
@@ -35,37 +40,12 @@ public class ProductService {
         }
     }
 
-    public Product createProduct(BWRole bwRole) {
-        Product product = Product.builder()
-                    .name(bwRole.getProductName())
-                    .alias(bwRole.getCmdbCode())
-                    .build();
-        return productRepository.save(product);
-    }
-
-    @Transactional(transactionManager = "transactionManager")
-    public List<Product> findOrCreateProducts(UserProfile userProfile) {
-        List<Product> products = new ArrayList<>();
-
+    public void updateProducts(UserProfile userProfile) {
         EmployeeProductsDTO employeeProductsDTO = bwEmployeeClient.getEmployeeInfo(userProfile.getLogin());
-
         if (employeeProductsDTO != null && employeeProductsDTO.getBwRoles() != null && !employeeProductsDTO.getBwRoles().isEmpty()) {
-
-            for(BWRole bwRole : employeeProductsDTO.getBwRoles()) {
-                Product product = productRepository.findAllByAlias(bwRole.getCmdbCode());
-                if(product == null) {
-                    try {
-                        product = createProduct(bwRole);
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                    }
-                }
-                products.add(product);
-            }
-        } else {
-            products.add(productRepository.findById(0L).get());
+            List<String> codes = employeeProductsDTO.getBwRoles().stream().map(BWRole::getCmdbCode).collect(Collectors.toList());
+            productClient.postProduct(codes, userProfile.getId().toString());
         }
-        return products;
     }
 
     public Boolean checkProductExistenceById(Long id) {
