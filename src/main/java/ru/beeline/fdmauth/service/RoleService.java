@@ -207,8 +207,7 @@ public class RoleService {
                         .build();
                 forSave.add(userRole);
             }
-            userRolesRepository.saveAll(forSave);
-            userProfile.setUserRoles(forSave);
+            userProfile.setUserRoles(userRolesRepository.saveAll(forSave));
         }
     }
 

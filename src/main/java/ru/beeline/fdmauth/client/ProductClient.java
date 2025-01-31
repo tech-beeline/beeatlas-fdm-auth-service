@@ -3,19 +3,18 @@ package ru.beeline.fdmauth.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import ru.beeline.fdmauth.domain.Role;
+import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.ProductDTO;
 import ru.beeline.fdmlib.dto.product.ProductPutDto;
 
 import java.util.List;
 
 import static ru.beeline.fdmauth.utils.Constant.USER_ID_HEADER;
+import static ru.beeline.fdmauth.utils.Constant.USER_ROLES_HEADER;
 
 @Slf4j
 @Service
@@ -29,12 +28,16 @@ public class ProductClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<ProductDTO> getProductByUserID(Long userId) {
+    public List<ProductDTO> getProductByUserID(Long userId, List<UserRoles> roles) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("SOURCE", "Sparx");
             headers.add(USER_ID_HEADER, userId.toString());
+            headers.add(USER_ROLES_HEADER, roles.stream()
+                    .map(UserRoles::getRole)
+                    .map(Role::getAlias)
+                    .map(Enum::name).toList().toString());
 
             return restTemplate.exchange(productServerUrl + "/api/v1/user/product",
                     HttpMethod.GET, new HttpEntity(headers), new ParameterizedTypeReference<List<ProductDTO>>() {
