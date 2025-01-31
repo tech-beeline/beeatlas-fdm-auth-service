@@ -53,6 +53,7 @@ public class UserService {
                                    String email,
                                    String fullName,
                                    String idExt) {
+        validateFields(login, email, fullName, idExt);
         log.info("login is " + login);
         UserProfile userProfile = findProfileByLogin(login);
         List<Long> productIds = new ArrayList<>();
@@ -66,6 +67,24 @@ public class UserService {
         List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId());
         productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
         return getInfo(userProfile, productIds);
+    }
+
+    private void validateFields(String login, String email, String fullName, String idExt) {
+        if (login == null || login.length() > 50) {
+            throw new RuntimeException("Login must not be null and must be at most 50 characters long.");
+        }
+
+        if (email == null || email.length() > 100) {
+            throw new RuntimeException("Email must not be null, must be at most 100 characters long, and must be a valid email address.");
+        }
+
+        if (fullName == null || fullName.length() > 255) {
+            throw new RuntimeException("Full name must not be null and must be at most 255 characters long.");
+        }
+
+        if (idExt == null || idExt.length() > 50) {
+            throw new RuntimeException("External ID must not be null and must be at most 50 characters long.");
+        }
     }
 
     public UserProfile createUser(String idExt, String fullName, String login, String email) {
