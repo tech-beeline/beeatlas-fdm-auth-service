@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface UserRolesRepository extends JpaRepository<UserRoles, Long> {
-    void deleteAllByUserProfileId(Long userProfileId);
+    void deleteAllByUserProfileId(Integer userProfileId);
 
     List<UserRoles> findAllByUserProfile(UserProfile userProfile);
 }

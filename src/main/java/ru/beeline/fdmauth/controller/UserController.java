@@ -16,8 +16,8 @@ import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
-import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
+import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -126,7 +126,7 @@ public class UserController {
 
     @GetMapping(value = "/admin/v1/user/{id}/existence", produces = "application/json")
     @ApiOperation(value = "Проверка существования пользователя", response = Boolean.class)
-    public ResponseEntity<Boolean> checkUserExistence(@PathVariable Long id) {
+    public ResponseEntity<Boolean> checkUserExistence(@PathVariable Integer id) {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 

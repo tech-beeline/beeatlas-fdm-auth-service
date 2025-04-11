@@ -22,7 +22,7 @@ public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_profile_id_generator")
     @SequenceGenerator(name = "user_profile_id_generator", sequenceName = "user_profile_id_seq", allocationSize = 1)
-    private Long id;
+    private Integer id;
 
     @Column(name = "id_ext")
     @JsonProperty("id_ext")

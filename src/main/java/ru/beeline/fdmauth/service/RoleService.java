@@ -211,7 +211,7 @@ public class RoleService {
         }
     }
 
-    public void deleteAllByUserProfileId(Long id) {
+    public void deleteAllByUserProfileId(Integer id) {
         userRolesRepository.deleteAllByUserProfileId(id);
     }
 

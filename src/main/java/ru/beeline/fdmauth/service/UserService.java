@@ -104,7 +104,7 @@ public class UserService {
         return newUser;
     }
 
-    public UserProfile findUserById(Long id) {
+    public UserProfile findUserById(Integer id) {
         return userProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
     }
@@ -126,7 +126,7 @@ public class UserService {
         return updatedUserProfile.map(UserProfileDTO::new).orElse(null);
     }
 
-    public Boolean checkProductExistenceById(Long id) {
+    public Boolean checkProductExistenceById(Integer id) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(id);
         return userOpt.isPresent();
     }
@@ -177,7 +177,7 @@ public class UserService {
         userProfileRepository.save(newUser);
     }
 
-    public String getEmailById(Long userId) {
+    public String getEmailById(Integer userId) {
         return findUserById(userId).getEmail();
     }
 

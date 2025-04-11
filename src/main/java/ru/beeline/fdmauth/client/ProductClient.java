@@ -28,7 +28,7 @@ public class ProductClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<ProductDTO> getProductByUserID(Long userId, List<UserRoles> roles) {
+    public List<ProductDTO> getProductByUserID(Integer userId, List<UserRoles> roles) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

@@ -37,7 +37,7 @@ public class ProductController {
 
     @GetMapping(value = "/user/{id}/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
-    public ResponseEntity<List<Product>> getProducts(@PathVariable Long id) {
+    public ResponseEntity<List<Product>> getProducts(@PathVariable Integer id) {
             return ResponseEntity.ok(productService.findProductsByUser(userService.findUserById(id)));
     }
 
@@ -46,7 +46,7 @@ public class ProductController {
     @GetMapping(value = "/admin/v1/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getUserProducts(@RequestHeader(value = USER_ID_HEADER, required = false) String userId){
-        UserProfile user = userService.findUserById(Long.valueOf(userId));
+        UserProfile user = userService.findUserById(Integer.valueOf(userId));
             return ResponseEntity.ok(productService.findProductsByUser(user));
     }
 }

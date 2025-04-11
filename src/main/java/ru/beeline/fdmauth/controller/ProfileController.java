@@ -22,7 +22,7 @@ public class ProfileController {
 
     @GetMapping(value = "/{userId}/email", produces = "application/json")
     @ApiOperation(value = "Получение email пользователя по id", response = EmailResponseDTO.class)
-    public EmailResponseDTO getEmailById(@PathVariable Long userId) {
+    public EmailResponseDTO getEmailById(@PathVariable Integer userId) {
         return new EmailResponseDTO(userService.getEmailById(userId));
     }
 }
