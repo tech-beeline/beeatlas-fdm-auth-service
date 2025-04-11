@@ -8,19 +8,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.aspect.AccessControl;
 import ru.beeline.fdmauth.domain.Permission;
-import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
-import ru.beeline.fdmauth.dto.UserProfileShortDTO;
+import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
-import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
-import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
+import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
@@ -67,7 +69,7 @@ public class UserController {
     public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
 
-        if(userProfile != null) {
+        if (userProfile != null) {
             return ResponseEntity.ok(new UserProfileDTO(userProfile));
         } else {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -80,7 +82,7 @@ public class UserController {
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if(userProfile == null) {
+        if (userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
@@ -93,14 +95,14 @@ public class UserController {
     @ApiOperation(value = "Получение разрешений профиля")
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if(userProfile == null) {
+        if (userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
         Set<Permission> rPermissions = new HashSet<>();
-        for(UserRoles role : userProfile.getUserRoles()){
+        for (UserRoles role : userProfile.getUserRoles()) {
             List<Permission> rolePermissions = roleService.getPermissions(role.getId());
-            if(!rolePermissions.isEmpty()) rPermissions.addAll(rolePermissions);
+            if (!rolePermissions.isEmpty()) rPermissions.addAll(rolePermissions);
         }
         Set<PermissionDTO> permissions = permissionService.getUserPermissions(rPermissions);
         return ResponseEntity.ok(permissions);
@@ -113,7 +115,7 @@ public class UserController {
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login, @RequestBody List<RoleInfoDTO> roles) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if(userProfile != null) {
+        if (userProfile != null) {
             return ResponseEntity.ok(userService.setRoles(userProfile, roles));
         } else {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -142,7 +144,7 @@ public class UserController {
                                                    @RequestParam String email,
                                                    @RequestParam String fullName,
                                                    @RequestParam String idExt
-                                                   ) {
+    ) {
         return ResponseEntity.ok(userService.getUserInfo(login, email, fullName, idExt));
     }
 }
