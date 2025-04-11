@@ -42,7 +42,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping(produces = "application/json")
+    @GetMapping(value = "/admin/v1/user", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> getAllProfiles() {
@@ -131,7 +131,7 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/api/v1/user/role/{aliasRole}", produces = "application/json")
+    @GetMapping(value = "/v1/user/role/{aliasRole}", produces = "application/json")
     @ApiOperation(value = "Получение всех пользователей с определенной ролью", response = Boolean.class)
     public ResponseEntity<List<UserProfileShortDTO>> checkUserExistence(@PathVariable String aliasRole) {
         return ResponseEntity.ok(userService.getProfilesByRoleAlias(aliasRole));
