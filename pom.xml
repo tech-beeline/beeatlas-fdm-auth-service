@@ -10,7 +10,7 @@
     </parent>
     <groupId>ru.beeline</groupId>
     <artifactId>fdm-auth</artifactId>
-    <version>0.0.8</version>
+    <version>1.0.1</version>
     <name>fdm-auth</name>
     <description>fdm-auth</description>
     <properties>

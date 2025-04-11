@@ -8,9 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.aspect.AccessControl;
 import ru.beeline.fdmauth.domain.Permission;
+import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
+import ru.beeline.fdmauth.dto.UserProfileShortDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
@@ -23,7 +25,7 @@ import java.util.*;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/v1/user")
+@RequestMapping("/api")
 @Api(value = "User API", tags = "User")
 public class UserController {
 
@@ -48,7 +50,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping(value = "/find", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/find", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Поиск профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestParam(value = "text", required = true) String text,
@@ -59,7 +61,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping(value = "/{login}", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{login}", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение профиля")
     public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
@@ -73,7 +75,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/{login}/roles", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
@@ -86,7 +88,7 @@ public class UserController {
     }
 
     @AccessControl
-    @GetMapping(value = "/{login}/permissions", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{login}/permissions", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений профиля")
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
@@ -106,7 +108,7 @@ public class UserController {
 
 
     @AccessControl
-    @PutMapping(value = "/{login}/roles", produces = "application/json")
+    @PutMapping(value = "/admin/v1/user/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login, @RequestBody List<RoleInfoDTO> roles) {
@@ -120,14 +122,21 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/{id}/existence", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{id}/existence", produces = "application/json")
     @ApiOperation(value = "Проверка существования пользователя", response = Boolean.class)
     public ResponseEntity<Boolean> checkUserExistence(@PathVariable Long id) {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 
 
-    @GetMapping(value = "/{login}/info", produces = "application/json")
+    @GetMapping(value = "/api/v1/user/role/{aliasRole}", produces = "application/json")
+    @ApiOperation(value = "Получение всех пользователей с определенной ролью", response = Boolean.class)
+    public ResponseEntity<List<UserProfileShortDTO>> checkUserExistence(@PathVariable String aliasRole) {
+        return ResponseEntity.ok(userService.getProfilesByRoleAlias(aliasRole));
+    }
+
+
+    @GetMapping(value = "/admin/v1/user/{login}/info", produces = "application/json")
     @ApiOperation(value = "Получение информации о пользователе", response = UserInfoDTO.class)
     public ResponseEntity<UserInfoDTO> getUserInfo(@PathVariable String login,
                                                    @RequestParam String email,

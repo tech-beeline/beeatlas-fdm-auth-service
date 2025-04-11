@@ -2,29 +2,30 @@ package ru.beeline.fdmauth.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import ru.beeline.fdmauth.client.ProductClient;
+import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.RolePermission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.ProductDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmauth.dto.UserProfileShortDTO;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
+import ru.beeline.fdmauth.repository.RoleRepository;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
 import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
 import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,6 +45,8 @@ public class UserService {
 
     @Autowired
     private ProductClient productClient;
+    @Autowired
+    private RoleRepository roleRepository;
 
     public List<UserProfile> getAllUsers() {
         return userProfileRepository.findAll();
@@ -65,7 +68,7 @@ public class UserService {
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
         List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId(), userProfile.getUserRoles());
-        if(productDTOList != null) {
+        if (productDTOList != null) {
             productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
         }
         return getInfo(userProfile, productIds);
@@ -177,5 +180,13 @@ public class UserService {
 
     public String getEmailById(Long userId) {
         return findUserById(userId).getEmail();
+    }
+
+    public List<UserProfileShortDTO> getProfilesByRoleAlias(String aliasRole) {
+        roleRepository.findAllByAliasAndDeletedFalse(Role.RoleType.valueOf(aliasRole))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Роль не найдена"));
+
+        List<UserProfile> profiles = userProfileRepository.findAllByRoleAlias(Role.RoleType.valueOf(aliasRole));
+        return profiles.stream().map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail())).toList();
     }
 }
