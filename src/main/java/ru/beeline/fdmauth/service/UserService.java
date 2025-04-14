@@ -113,6 +113,12 @@ public class UserService {
         return userProfileRepository.findByLogin(login);
     }
 
+    public UserProfileDTO findProfileById(Integer id) {
+        UserProfile userProfile = userProfileRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
+        return new UserProfileDTO(userProfile);
+    }
+
     @Transactional(transactionManager = "transactionManager")
     public UserProfileDTO setRoles(UserProfile userProfile, List<RoleInfoDTO> roles) {
         List<Long> ids = roles.stream().map(RoleInfoDTO::getId).collect(Collectors.toList());
