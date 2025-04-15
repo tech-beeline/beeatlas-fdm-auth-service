@@ -77,6 +77,13 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/v1/user/{id}", produces = "application/json")
+    @ResponseBody
+    @ApiOperation(value = "Получение профиля по id")
+    public ResponseEntity<UserProfileDTO> getUserProfileById(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.findProfileById(id));
+    }
+
     @GetMapping(value = "/admin/v1/user/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
