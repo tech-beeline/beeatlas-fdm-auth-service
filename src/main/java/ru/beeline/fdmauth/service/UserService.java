@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.beeline.fdmauth.client.ProductClient;
-import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.RolePermission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
@@ -188,10 +187,14 @@ public class UserService {
     }
 
     public List<UserProfileShortDTO> getProfilesByRoleAlias(String aliasRole) {
-        roleRepository.findAllByAliasAndDeletedFalse(Role.RoleType.valueOf(aliasRole))
+        roleRepository.findAllByAliasAndDeletedFalse(aliasRole)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Роль не найдена"));
 
-        List<UserProfile> profiles = userProfileRepository.findAllByRoleAlias(Role.RoleType.valueOf(aliasRole));
-        return profiles.stream().map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail())).toList();
+        List<UserProfile> profiles = userProfileRepository.findAllByRoleAlias(aliasRole);
+        if (profiles.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с данной ролью не найден");
+        }
+        return profiles.stream().sorted(Comparator.comparing(UserProfile::getId))
+                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail())).toList();
     }
 }

@@ -15,6 +15,6 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findByIdIn(List<Long> idList);
 
 
-        @Query("SELECT r FROM Role r WHERE r.alias = :alias AND r.deleted = false")
-    Optional<List<Role>> findAllByAliasAndDeletedFalse(@Param("alias") Role.RoleType alias);
+    @Query("SELECT r FROM Role r WHERE lower(r.alias) = lower(:alias) AND r.deleted = false")
+    Optional<List<Role>> findAllByAliasAndDeletedFalse(@Param("alias") String alias);
 }

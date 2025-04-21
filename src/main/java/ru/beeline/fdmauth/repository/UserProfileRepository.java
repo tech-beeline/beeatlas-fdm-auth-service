@@ -16,7 +16,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Intege
     @Query("SELECT DISTINCT up FROM UserProfile up " +
             "JOIN up.userRoles ur " +
             "JOIN ur.role r " +
-            "WHERE r.alias = :alias AND r.deleted = false")
-    List<UserProfile> findAllByRoleAlias(@Param("alias") Role.RoleType alias);
+            "WHERE lower(r.alias) = lower(:alias) AND r.deleted = false")
+    List<UserProfile> findAllByRoleAlias(@Param("alias") String alias);
     UserProfile findByLogin(String login);
 }

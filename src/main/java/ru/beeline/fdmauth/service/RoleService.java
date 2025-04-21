@@ -78,9 +78,7 @@ public class RoleService {
     public Role updateRole(Long id, RoleDTO role) {
         if (id != null) {
             if (id >= 1 && id <= 8) {
-                String roleName = Role.RoleType.getNameById(id.intValue()-1);
-                String errText = String.format("Редактируемая роль '%s' является дефолтной", roleName);
-                throw new DefaultRoleException(errText);
+                throw new DefaultRoleException("Редактируемая роль является дефолтной");
             } else {
                 Optional<Role> currentRoleOpt = findRole(id);
                 if (currentRoleOpt.isPresent()) {
