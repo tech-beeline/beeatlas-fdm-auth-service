@@ -24,13 +24,12 @@ public class Role {
 
     private String descr;
 
-    @Enumerated(value = EnumType.STRING)
-    private RoleType alias;
+    private String alias;
 
     private boolean deleted;
 
     public boolean isDefault() {
-        return name.equals(RoleType.DEFAULT.roleName) || name.equals(RoleType.ADMINISTRATOR.roleName);
+        return alias.equals("DEFAULT") || alias.equals("ADMINISTRATOR");
     }
 
     @ApiModelProperty(hidden = true)
@@ -41,24 +40,6 @@ public class Role {
     @ApiModelProperty(hidden = true)
     @OneToMany(mappedBy = "role")
     List<UserRoles> userRoles;
-
-    @Getter
-    public enum RoleType {
-        DEFAULT("Сотрудник"),
-        ADMINISTRATOR("Администратор");
-
-        private final String roleName;
-
-        private static final RoleType[] values = RoleType.values();
-
-        RoleType(String roleName) {
-            this.roleName = roleName;
-        }
-
-        public static String getNameById(int id){
-            return values[id].getRoleName();
-        }
-    }
 
     @Override
     public String toString() {

@@ -94,12 +94,6 @@ public class RoleController {
             @ApiResponse(code = 404, message = "Роль c таким id не найдена")
     })
     public ResponseEntity deleteRole(@PathVariable Long id) {
-        if (id >= 1 && id <= 8) {
-            String roleName = Role.RoleType.getNameById(id.intValue()-1);
-            String errText = String.format("Удаляемая роль '%s' является дефолтной", roleName);
-            log.error("400 " + errText);
-            return ResponseEntity.badRequest().body(errText);
-        }
         {
             Optional<Role> currentRoleOpt = roleService.findRole(id);
             if (currentRoleOpt.isPresent()) {

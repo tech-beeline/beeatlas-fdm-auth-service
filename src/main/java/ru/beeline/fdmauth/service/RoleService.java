@@ -62,7 +62,7 @@ public class RoleService {
         Role newRole = Role.builder()
                 .name(role.getName())
                 .descr(role.getName())
-                .alias(Role.RoleType.DEFAULT)
+                .alias("DEFAULT")
                 .deleted(false)
                 .build();
         roleRepository.save(newRole);

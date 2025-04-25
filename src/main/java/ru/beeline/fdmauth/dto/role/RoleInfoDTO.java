@@ -6,11 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.UserRoles;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+
 import java.util.List;
 import java.util.stream.Collectors;
-import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,15 +18,14 @@ public class RoleInfoDTO extends RoleDTO {
 
     private String descr;
 
-    @Enumerated(value = EnumType.STRING)
-    private RoleTypeDTO alias;
+    private String alias;
 
     private boolean deleted;
 
     public RoleInfoDTO(Role role) {
         super(role.getId(), role.getName());
         this.descr = role.getDescr();
-        this.alias = RoleTypeDTO.valueOf(role.getAlias().name());
+        this.alias = role.getAlias();
         this.deleted = role.isDeleted();
     }
 

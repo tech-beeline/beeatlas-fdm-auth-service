@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.beeline.fdmauth.client.ProductClient;
+import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.RolePermission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
@@ -18,7 +19,6 @@ import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.RoleRepository;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
 import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
-import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
 
@@ -145,7 +145,9 @@ public class UserService {
                     .productsIds(productIds)
                     .roles(userRoles != null ?
                             userRoles.stream()
-                                    .map(ur -> RoleTypeDTO.valueOf(ur.getRole().getAlias().name())).collect(Collectors.toList()) : new ArrayList<>())
+                                    .map(UserRoles::getRole)
+                                    .map(Role::getAlias)
+                                    .collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
         } else throw new UserNotFoundException("404 Пользователь не найден");
