@@ -9,7 +9,10 @@ env:
   AUTHBASIC: "vault:eafdmmart/data/dev/fdm#mapicauth"
   TECHUSER: "vault:eafdmmart/data/dev/fdm#techuser"
   TECHPASSWORD: "vault:eafdmmart/data/dev/fdm#techpassword"
-  
+
+podAnnotations:
+  vault.security.banzaicloud.io/vault-addr: "https://vault-test.vimpelcom.ru/"
+
 ingress:
   annotations:
     nginx.ingress.kubernetes.io/cors-allow-headers: Content-Type, authorization
