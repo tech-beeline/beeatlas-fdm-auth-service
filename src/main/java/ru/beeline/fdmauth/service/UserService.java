@@ -2,9 +2,12 @@ package ru.beeline.fdmauth.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import ru.beeline.fdmauth.client.ProductClient;
+import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.RolePermission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
@@ -13,18 +16,14 @@ import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
+import ru.beeline.fdmauth.repository.RoleRepository;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
 import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
-import ru.beeline.fdmlib.dto.auth.RoleTypeDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
+import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,6 +43,8 @@ public class UserService {
 
     @Autowired
     private ProductClient productClient;
+    @Autowired
+    private RoleRepository roleRepository;
 
     public List<UserProfile> getAllUsers() {
         return userProfileRepository.findAll();
@@ -65,7 +66,7 @@ public class UserService {
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
         List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId(), userProfile.getUserRoles());
-        if(productDTOList != null) {
+        if (productDTOList != null) {
             productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
         }
         return getInfo(userProfile, productIds);
@@ -102,13 +103,19 @@ public class UserService {
         return newUser;
     }
 
-    public UserProfile findUserById(Long id) {
+    public UserProfile findUserById(Integer id) {
         return userProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
     }
 
     public UserProfile findProfileByLogin(String login) {
         return userProfileRepository.findByLogin(login);
+    }
+
+    public UserProfileDTO findProfileById(Integer id) {
+        UserProfile userProfile = userProfileRepository.findById(id).orElseThrow(() ->
+                new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
+        return new UserProfileDTO(userProfile);
     }
 
     @Transactional(transactionManager = "transactionManager")
@@ -124,7 +131,7 @@ public class UserService {
         return updatedUserProfile.map(UserProfileDTO::new).orElse(null);
     }
 
-    public Boolean checkProductExistenceById(Long id) {
+    public Boolean checkProductExistenceById(Integer id) {
         Optional<UserProfile> userOpt = userProfileRepository.findById(id);
         return userOpt.isPresent();
     }
@@ -138,7 +145,9 @@ public class UserService {
                     .productsIds(productIds)
                     .roles(userRoles != null ?
                             userRoles.stream()
-                                    .map(ur -> RoleTypeDTO.valueOf(ur.getRole().getAlias().name())).collect(Collectors.toList()) : new ArrayList<>())
+                                    .map(UserRoles::getRole)
+                                    .map(Role::getAlias)
+                                    .collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
         } else throw new UserNotFoundException("404 Пользователь не найден");
@@ -175,7 +184,19 @@ public class UserService {
         userProfileRepository.save(newUser);
     }
 
-    public String getEmailById(Long userId) {
+    public String getEmailById(Integer userId) {
         return findUserById(userId).getEmail();
+    }
+
+    public List<UserProfileShortDTO> getProfilesByRoleAlias(String aliasRole) {
+        roleRepository.findAllByAliasAndDeletedFalse(aliasRole)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Роль не найдена"));
+
+        List<UserProfile> profiles = userProfileRepository.findAllByRoleAlias(aliasRole);
+        if (profiles.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с данной ролью не найден");
+        }
+        return profiles.stream().sorted(Comparator.comparing(UserProfile::getId))
+                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail())).toList();
     }
 }

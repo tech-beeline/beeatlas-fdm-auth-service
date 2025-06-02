@@ -28,7 +28,7 @@ public class ProductClient {
         this.restTemplate = restTemplate;
     }
 
-    public List<ProductDTO> getProductByUserID(Long userId, List<UserRoles> roles) {
+    public List<ProductDTO> getProductByUserID(Integer userId, List<UserRoles> roles) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -37,7 +37,7 @@ public class ProductClient {
             headers.add(USER_ROLES_HEADER, roles.stream()
                     .map(UserRoles::getRole)
                     .map(Role::getAlias)
-                    .map(Enum::name).toList().toString());
+                    .toList().toString());
 
             return restTemplate.exchange(productServerUrl + "/api/v1/user/product",
                     HttpMethod.GET, new HttpEntity(headers), new ParameterizedTypeReference<List<ProductDTO>>() {

@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static ru.beeline.fdmauth.utils.Constant.*;
-import static ru.beeline.fdmlib.dto.auth.RoleTypeDTO.ADMINISTRATOR;
 
 @Aspect
 @Component
@@ -24,7 +23,7 @@ public class AccessControlAspect {
     public Object checkAdminAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String userRoles = validateHeaders();
 
-        boolean isAdmin = toList(userRoles).contains(ADMINISTRATOR.name());
+        boolean isAdmin = toList(userRoles).contains("ADMINISTRATOR");
         if (!isAdmin) throw new OnlyAdminAccessException("403 Permission denied");
 
         return joinPoint.proceed();

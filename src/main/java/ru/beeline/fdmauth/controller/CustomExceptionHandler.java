@@ -35,7 +35,7 @@ public class CustomExceptionHandler {
                 .body(e.getMessage());
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
+        @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleException(EntityNotFoundException e) {
         log.error(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

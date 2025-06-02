@@ -17,7 +17,7 @@ import static ru.beeline.fdmauth.utils.Constant.DATE_TIMEZONE;
 @Setter
 public class UserProfileDTO {
 
-    private Long id;
+    private Integer id;
 
     @JsonProperty("id_ext")
     private String idExt;

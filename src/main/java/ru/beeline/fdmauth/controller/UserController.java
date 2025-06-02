@@ -11,19 +11,23 @@ import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
+import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserService;
-import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
-import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
 import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/v1/user")
+@RequestMapping("/api")
 @Api(value = "User API", tags = "User")
 public class UserController {
 
@@ -38,7 +42,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping(produces = "application/json")
+    @GetMapping(value = "/admin/v1/user", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> getAllProfiles() {
@@ -48,7 +52,7 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping(value = "/find", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/find", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Поиск профилей пользователей")
     public ResponseEntity<List<UserProfileDTO>> findUserProfiles(@RequestParam(value = "text", required = true) String text,
@@ -59,13 +63,13 @@ public class UserController {
 
 
     @AccessControl
-    @GetMapping(value = "/{login}", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{login}", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение профиля")
     public ResponseEntity<UserProfileDTO> getUserProfileByLogin(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
 
-        if(userProfile != null) {
+        if (userProfile != null) {
             return ResponseEntity.ok(new UserProfileDTO(userProfile));
         } else {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -73,12 +77,19 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/{login}/roles", produces = "application/json")
+    @GetMapping(value = "/v1/user/{id}", produces = "application/json")
+    @ResponseBody
+    @ApiOperation(value = "Получение профиля по id")
+    public ResponseEntity<UserProfileDTO> getUserProfileById(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.findProfileById(id));
+    }
+
+    @GetMapping(value = "/admin/v1/user/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if(userProfile == null) {
+        if (userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
@@ -86,19 +97,19 @@ public class UserController {
     }
 
     @AccessControl
-    @GetMapping(value = "/{login}/permissions", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{login}/permissions", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Получение разрешений профиля")
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if(userProfile == null) {
+        if (userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
         Set<Permission> rPermissions = new HashSet<>();
-        for(UserRoles role : userProfile.getUserRoles()){
+        for (UserRoles role : userProfile.getUserRoles()) {
             List<Permission> rolePermissions = roleService.getPermissions(role.getId());
-            if(!rolePermissions.isEmpty()) rPermissions.addAll(rolePermissions);
+            if (!rolePermissions.isEmpty()) rPermissions.addAll(rolePermissions);
         }
         Set<PermissionDTO> permissions = permissionService.getUserPermissions(rPermissions);
         return ResponseEntity.ok(permissions);
@@ -106,12 +117,12 @@ public class UserController {
 
 
     @AccessControl
-    @PutMapping(value = "/{login}/roles", produces = "application/json")
+    @PutMapping(value = "/admin/v1/user/{login}/roles", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Установка ролей профиля")
     public ResponseEntity<UserProfileDTO> setUserProfileRoles(@PathVariable String login, @RequestBody List<RoleInfoDTO> roles) {
         UserProfile userProfile = userService.findProfileByLogin(login);
-        if(userProfile != null) {
+        if (userProfile != null) {
             return ResponseEntity.ok(userService.setRoles(userProfile, roles));
         } else {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
@@ -120,20 +131,27 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/{id}/existence", produces = "application/json")
+    @GetMapping(value = "/admin/v1/user/{id}/existence", produces = "application/json")
     @ApiOperation(value = "Проверка существования пользователя", response = Boolean.class)
-    public ResponseEntity<Boolean> checkUserExistence(@PathVariable Long id) {
+    public ResponseEntity<Boolean> checkUserExistence(@PathVariable Integer id) {
         return ResponseEntity.ok(userService.checkProductExistenceById(id));
     }
 
 
-    @GetMapping(value = "/{login}/info", produces = "application/json")
+    @GetMapping(value = "/v1/user/role/{aliasRole}", produces = "application/json")
+    @ApiOperation(value = "Получение всех пользователей с определенной ролью", response = Boolean.class)
+    public ResponseEntity<List<UserProfileShortDTO>> checkUserExistence(@PathVariable String aliasRole) {
+        return ResponseEntity.ok(userService.getProfilesByRoleAlias(aliasRole));
+    }
+
+
+    @GetMapping(value = "/admin/v1/user/{login}/info", produces = "application/json")
     @ApiOperation(value = "Получение информации о пользователе", response = UserInfoDTO.class)
     public ResponseEntity<UserInfoDTO> getUserInfo(@PathVariable String login,
                                                    @RequestParam String email,
                                                    @RequestParam String fullName,
                                                    @RequestParam String idExt
-                                                   ) {
+    ) {
         return ResponseEntity.ok(userService.getUserInfo(login, email, fullName, idExt));
     }
 }
