@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.beeline.fdmauth.service.UserService;
+import ru.beeline.fdmauth.service.UserProfileService;
 import ru.beeline.fdmlib.dto.auth.EmailResponseDTO;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -18,11 +18,11 @@ import ru.beeline.fdmlib.dto.auth.EmailResponseDTO;
 public class ProfileController {
 
     @Autowired
-    private UserService userService;
+    private UserProfileService userProfileService;
 
     @GetMapping(value = "/{userId}/email", produces = "application/json")
     @ApiOperation(value = "Получение email пользователя по id", response = EmailResponseDTO.class)
     public EmailResponseDTO getEmailById(@PathVariable Integer userId) {
-        return new EmailResponseDTO(userService.getEmailById(userId));
+        return new EmailResponseDTO(userProfileService.getEmailById(userId));
     }
 }

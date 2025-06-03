@@ -7,10 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.aspect.HeaderControl;
 import ru.beeline.fdmauth.domain.Product;
-import ru.beeline.fdmauth.domain.UserProfile;
-import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.service.ProductService;
-import ru.beeline.fdmauth.service.UserService;
+import ru.beeline.fdmauth.service.UserProfileService;
 
 import java.util.List;
 
@@ -26,7 +24,7 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
-    private UserService userService;
+    private UserProfileService userProfileService;
 
 
     @GetMapping(value = "/product/{id}/existence", produces = "application/json")
@@ -38,15 +36,14 @@ public class ProductController {
     @GetMapping(value = "/user/{id}/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
     public ResponseEntity<List<Product>> getProducts(@PathVariable Integer id) {
-            return ResponseEntity.ok(productService.findProductsByUser(userService.findUserById(id)));
+        return ResponseEntity.ok(productService.findProductsByUserId(id));
     }
 
 
     @HeaderControl
     @GetMapping(value = "/admin/v1/product", produces = "application/json")
     @ApiOperation(value = "Получение списка продуктов пользователя", response = List.class)
-    public ResponseEntity<List<Product>> getUserProducts(@RequestHeader(value = USER_ID_HEADER, required = false) String userId){
-        UserProfile user = userService.findUserById(Integer.valueOf(userId));
-            return ResponseEntity.ok(productService.findProductsByUser(user));
+    public ResponseEntity<List<Product>> getUserProducts(@RequestHeader(value = USER_ID_HEADER, required = false) String userId) {
+        return ResponseEntity.ok(productService.findProductsByUserId(Integer.valueOf(userId)));
     }
 }

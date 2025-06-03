@@ -11,6 +11,14 @@ import ru.beeline.fdmauth.exception.*;
 @ControllerAdvice
 @Slf4j
 public class CustomExceptionHandler {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleException(IllegalArgumentException e) {
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .header("content-type", MediaType.APPLICATION_JSON_VALUE)
+                .body(e.getMessage());
+    }
+
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<Object> handleException(UnauthorizedException e) {
         log.error(e.getMessage());

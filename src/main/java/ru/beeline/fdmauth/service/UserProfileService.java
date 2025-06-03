@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserService {
+public class UserProfileService {
 
     Long DEFAULT_ROLE_ID = 1L;
 
@@ -50,10 +50,7 @@ public class UserService {
         return userProfileRepository.findAll();
     }
 
-    public UserInfoDTO getUserInfo(String login,
-                                   String email,
-                                   String fullName,
-                                   String idExt) {
+    public UserInfoDTO getUserInfo(String login, String email, String fullName, String idExt) {
         validateFields(login, email, fullName, idExt);
         log.info("login is " + login);
         UserProfile userProfile = findProfileByLogin(login);
@@ -65,7 +62,8 @@ public class UserService {
             userProfile = findUserById(userProfile.getId());
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
-        List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId(), userProfile.getUserRoles());
+        List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId(),
+                                                                           userProfile.getUserRoles());
         if (productDTOList != null) {
             productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
         }
@@ -78,7 +76,8 @@ public class UserService {
         }
 
         if (email == null || email.length() > 100) {
-            throw new RuntimeException("Email must not be null, must be at most 100 characters long, and must be a valid email address.");
+            throw new RuntimeException(
+                    "Email must not be null, must be at most 100 characters long, and must be a valid email address.");
         }
 
         if (fullName == null || fullName.length() > 255) {
@@ -105,7 +104,8 @@ public class UserService {
 
     public UserProfile findUserById(Integer id) {
         return userProfileRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден",
+                                                                             id)));
     }
 
     public UserProfile findProfileByLogin(String login) {
@@ -113,8 +113,9 @@ public class UserService {
     }
 
     public UserProfileDTO findProfileById(Integer id) {
-        UserProfile userProfile = userProfileRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден", id)));
+        UserProfile userProfile = userProfileRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден",
+                                                                             id)));
         return new UserProfileDTO(userProfile);
     }
 
@@ -143,14 +144,14 @@ public class UserService {
             return UserInfoDTO.builder()
                     .id(userProfile.getId())
                     .productsIds(productIds)
-                    .roles(userRoles != null ?
-                            userRoles.stream()
-                                    .map(UserRoles::getRole)
-                                    .map(Role::getAlias)
-                                    .collect(Collectors.toList()) : new ArrayList<>())
+                    .roles(userRoles != null ? userRoles.stream()
+                            .map(UserRoles::getRole)
+                            .map(Role::getAlias)
+                            .collect(Collectors.toList()) : new ArrayList<>())
                     .permissions(getPermissionsByUser(userProfile))
                     .build();
-        } else throw new UserNotFoundException("404 Пользователь не найден");
+        } else
+            throw new UserNotFoundException("404 Пользователь не найден");
     }
 
     private List<PermissionTypeDTO> getPermissionsByUser(UserProfile userProfile) {
@@ -163,7 +164,11 @@ public class UserService {
                 List<RolePermission> rolePermissions = userRole.getRole().getPermissions();
                 if (rolePermissions != null) {
                     log.info("check permissions count " + rolePermissions.size());
-                    permissionTypes.addAll(rolePermissions.stream().map(rp -> PermissionTypeDTO.valueOf(rp.getPermission().getAlias().name())).toList());
+                    permissionTypes.addAll(rolePermissions.stream()
+                                                   .map(rp -> PermissionTypeDTO.valueOf(rp.getPermission()
+                                                                                                .getAlias()
+                                                                                                .name()))
+                                                   .toList());
                 }
                 log.info("permissions is " + permissionTypes);
             }
@@ -196,7 +201,19 @@ public class UserService {
         if (profiles.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с данной ролью не найден");
         }
-        return profiles.stream().sorted(Comparator.comparing(UserProfile::getId))
-                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail())).toList();
+        return profiles.stream()
+                .sorted(Comparator.comparing(UserProfile::getId))
+                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail()))
+                .toList();
+    }
+
+    public List<UserProfileShortDTO> getUsersByIds(List<Integer> userIds) {
+        List<UserProfile> userProfile = userProfileRepository.findAllById(userIds);
+        if (userProfile.size() != userIds.size()) {
+            throw new IllegalArgumentException("400 передан не существующий пользователь");
+        }
+        return userProfile.stream()
+                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail()))
+                .collect(Collectors.toList());
     }
 }
