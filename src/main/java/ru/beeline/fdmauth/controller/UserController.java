@@ -35,10 +35,10 @@ public class UserController {
         return ResponseEntity.ok(userProfileService.getProfilesByRoleAlias(aliasRole));
     }
 
-    @GetMapping(value = "/list", produces = "application/json")
+    @PostMapping(value = "/list", produces = "application/json")
     @ResponseBody
     @ApiOperation(value = "Поиск профилей пользователей", response = List.class)
-    public ResponseEntity<List<UserProfileShortDTO>> findUserProfiles(@RequestParam List<Integer> userIds) {
+    public ResponseEntity<List<UserProfileShortDTO>> findUserProfiles(@RequestBody List<Integer> userIds) {
         return ResponseEntity.ok(userProfileService.getUsersByIds(userIds));
     }
 }
