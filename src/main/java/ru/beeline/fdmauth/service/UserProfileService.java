@@ -208,8 +208,9 @@ public class UserProfileService {
     }
 
     public List<UserProfileShortDTO> getUsersByIds(List<Integer> userIds) {
-        List<UserProfile> userProfile = userProfileRepository.findAllById(userIds);
-        if (userProfile.size() != userIds.size()) {
+        List<Integer> uniqueUserIds = new ArrayList<>(new LinkedHashSet<>(userIds));
+        List<UserProfile> userProfile = userProfileRepository.findAllById(uniqueUserIds);
+        if (userProfile.size() != uniqueUserIds.size()) {
             throw new IllegalArgumentException("400 передан не существующий пользователь");
         }
         return userProfile.stream()
