@@ -211,7 +211,7 @@ public class UserProfileService {
         List<Integer> uniqueUserIds = new ArrayList<>(new LinkedHashSet<>(userIds));
         List<UserProfile> userProfile = userProfileRepository.findAllById(uniqueUserIds);
         if (userProfile.size() != uniqueUserIds.size()) {
-            throw new IllegalArgumentException("400 передан не существующий пользователь");
+            throw new IllegalArgumentException("400 передан несуществующий пользователь");
         }
         return userProfile.stream()
                 .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail()))
