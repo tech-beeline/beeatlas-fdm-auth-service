@@ -209,7 +209,10 @@ public class UserProfileService {
 
     public List<UserProfileShortDTO> getUsersByIds(List<Integer> userIds) {
         log.info(userIds.toString());
-        List<Integer> uniqueUserIds = new ArrayList<>(new LinkedHashSet<>(userIds));
+        List<Integer> uniqueUserIds = new ArrayList<>(
+                userIds.stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toCollection(LinkedHashSet::new)));
         List<UserProfile> userProfile = userProfileRepository.findAllById(uniqueUserIds);
         if (userProfile.size() != uniqueUserIds.size()) {
             throw new IllegalArgumentException("400 передан несуществующий пользователь");
