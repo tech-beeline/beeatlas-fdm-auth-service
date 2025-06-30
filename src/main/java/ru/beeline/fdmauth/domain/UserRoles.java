@@ -1,10 +1,6 @@
 package ru.beeline.fdmauth.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -14,6 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "user_roles", schema = "user_auth")
+@ToString
 @EqualsAndHashCode(exclude = "userProfile")
 public class UserRoles {
 

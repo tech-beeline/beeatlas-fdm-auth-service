@@ -3,10 +3,8 @@ package ru.beeline.fdmauth.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString
 @Table(name = "user_profile", schema = "user_auth")
 public class UserProfile {
 
@@ -32,6 +31,7 @@ public class UserProfile {
     @JsonProperty("full_name")
     private String fullName;
 
+    @Column(name = "login")
     private String login;
 
     @Temporal(TemporalType.TIMESTAMP)

@@ -109,7 +109,9 @@ public class UserProfileService {
     }
 
     public UserProfile findProfileByLogin(String login) {
-        return userProfileRepository.findByLogin(login);
+        UserProfile userProfile =  userProfileRepository.findByLogin(login);
+        log.info("finded userProfile=" + userProfile.toString());
+        return userProfile;
     }
 
     public UserProfileDTO findProfileById(Integer id) {
