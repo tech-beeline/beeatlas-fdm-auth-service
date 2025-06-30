@@ -1,10 +1,8 @@
 package ru.beeline.fdmauth.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import javax.persistence.*;
 
 @Builder
@@ -12,6 +10,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString(exclude = "role")
 @Table(name = "role_permissions", schema = "user_auth")
 public class RolePermission {
 
