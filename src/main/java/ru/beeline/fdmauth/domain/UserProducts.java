@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,6 +22,7 @@ import javax.persistence.UniqueConstraint;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@ToString(exclude = "userProfile")
 @Table(name = "user_product", schema = "user_auth",
         uniqueConstraints = @UniqueConstraint(columnNames = {"id_profile", "id_product"}))
 public class UserProducts {
