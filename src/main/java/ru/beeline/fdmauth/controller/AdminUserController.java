@@ -80,13 +80,11 @@ public class AdminUserController {
     @ResponseBody
     @ApiOperation(value = "Получение ролей профиля")
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
-        log.info("input login=" + login);
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
         if (userProfile == null) {
             log.error(String.format("404 Пользователь c login '%s' не найден", login));
             return ResponseEntity.notFound().build();
         }
-        log.info("userProfile.getUserRoles()=" + userProfile.getUserRoles());
         return ResponseEntity.ok(RoleInfoDTO.convert(userProfile.getUserRoles()));
     }
 
