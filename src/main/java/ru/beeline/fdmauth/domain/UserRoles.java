@@ -10,7 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "user_roles", schema = "user_auth")
-@ToString
+@ToString(exclude = "userProfile")
 @EqualsAndHashCode(exclude = "userProfile")
 public class UserRoles {
 
