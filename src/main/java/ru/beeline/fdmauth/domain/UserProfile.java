@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@ToString
+@ToString(exclude = {"userRoles", "userProducts"})
 @Table(name = "user_profile", schema = "user_auth")
 public class UserProfile {
 
