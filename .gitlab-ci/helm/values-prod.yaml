@@ -8,6 +8,7 @@ env:
   AUTHBASIC: "vault:eafdmmart/data/prod/fdm#mapicauth"
   TECHUSER: "vault:eafdmmart/data/prod/fdm#techuser"
   TECHPASSWORD: "vault:eafdmmart/data/prod/fdm#techpassword"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/prod/fdm#opentelemetry"
 
 
 replicaCount: 1

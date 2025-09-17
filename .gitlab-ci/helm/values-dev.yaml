@@ -9,6 +9,7 @@ env:
   AUTHBASIC: "vault:eafdmmart/data/dev/fdm#mapicauth"
   TECHUSER: "vault:eafdmmart/data/dev/fdm#techuser"
   TECHPASSWORD: "vault:eafdmmart/data/dev/fdm#techpassword"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "vault:eafdmmart/data/dev/fdm#opentelemetry"
 
 podAnnotations:
   vault.security.banzaicloud.io/vault-addr: "https://vault-test.vimpelcom.ru/"
