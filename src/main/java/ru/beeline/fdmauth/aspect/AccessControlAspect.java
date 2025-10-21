@@ -22,10 +22,13 @@ public class AccessControlAspect {
     @Around("@annotation(AccessControl)")
     public Object checkAdminAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String userRoles = validateHeaders();
-
-        boolean isAdmin = toList(userRoles).contains("ADMINISTRATOR");
-        if (!isAdmin) throw new OnlyAdminAccessException("403 Permission denied");
-
+        List<String> roles = Arrays.stream(userRoles.split(","))
+                .map(String::trim)
+                .toList();
+        boolean isAdmin = roles.contains("ADMINISTRATOR");
+        if (!isAdmin) {
+            throw new OnlyAdminAccessException("403 Permission denied");
+        }
         return joinPoint.proceed();
     }
 
