@@ -63,7 +63,7 @@ public class UserProfileService {
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
         List<ProductDTO> productDTOList = productClient.getProductByUserID(userProfile.getId(),
-                                                                           userProfile.getUserRoles());
+                userProfile.getUserRoles());
         if (productDTOList != null) {
             productDTOList.forEach(productDTO -> productIds.add((long) productDTO.getId()));
         }
@@ -105,19 +105,31 @@ public class UserProfileService {
     public UserProfile findUserById(Integer id) {
         return userProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден",
-                                                                             id)));
+                        id)));
     }
 
     public UserProfile findProfileByLogin(String login) {
-        UserProfile userProfile =  userProfileRepository.findByLogin(login);
+        UserProfile userProfile = userProfileRepository.findByLogin(login);
         return userProfile;
     }
 
     public UserProfileDTO findProfileById(Integer id) {
         UserProfile userProfile = userProfileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("404 Пользователь c id '%s' не найден",
-                                                                             id)));
+                        id)));
         return new UserProfileDTO(userProfile);
+    }
+
+    public List<UserProfileDTO> findProfileByIdIn(List<Integer> ids) {
+        List<UserProfileDTO> result = new ArrayList<>();
+        if (!ids.isEmpty()) {
+            List<UserProfile> userProfileList = userProfileRepository.findAllByIdIn(ids);
+            if (!userProfileList.isEmpty()) {
+                result = userProfileList.stream().map(UserProfileDTO::new).toList();
+                return result;
+            }
+        }
+        return result;
     }
 
     @Transactional(transactionManager = "transactionManager")
@@ -166,10 +178,10 @@ public class UserProfileService {
                 if (rolePermissions != null) {
                     log.info("check permissions count " + rolePermissions.size());
                     permissionTypes.addAll(rolePermissions.stream()
-                                                   .map(rp -> PermissionTypeDTO.valueOf(rp.getPermission()
-                                                                                                .getAlias()
-                                                                                                .name()))
-                                                   .toList());
+                            .map(rp -> PermissionTypeDTO.valueOf(rp.getPermission()
+                                    .getAlias()
+                                    .name()))
+                            .toList());
                 }
                 log.info("permissions is " + permissionTypes);
             }
