@@ -29,6 +29,13 @@ public class UserController {
         return ResponseEntity.ok(userProfileService.findProfileById(id));
     }
 
+    @ResponseBody
+    @ApiOperation(value = "Получение профилей по списку id")
+    @GetMapping()
+    public ResponseEntity <List<UserProfileDTO>> getUserProfileByIdIn(@RequestParam List<Integer> ids) {
+        return ResponseEntity.ok(userProfileService.findProfileByIdIn(ids));
+    }
+
     @GetMapping(value = "/role/{aliasRole}", produces = "application/json")
     @ApiOperation(value = "Получение всех пользователей с определенной ролью", response = Boolean.class)
     public ResponseEntity<List<UserProfileShortDTO>> checkUserExistence(@PathVariable String aliasRole) {
