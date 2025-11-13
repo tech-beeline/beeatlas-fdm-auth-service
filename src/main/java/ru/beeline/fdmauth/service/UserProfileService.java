@@ -120,12 +120,18 @@ public class UserProfileService {
         return new UserProfileDTO(userProfile);
     }
 
-    public List<UserProfileDTO> findProfileByIdIn(List<Integer> ids) {
-        List<UserProfileDTO> result = new ArrayList<>();
+    public List<UserProfileShortDTO> findProfileByIdIn(List<Integer> ids) {
+        List<UserProfileShortDTO> result = new ArrayList<>();
         if (!ids.isEmpty()) {
             List<UserProfile> userProfileList = userProfileRepository.findAllByIdIn(ids);
             if (!userProfileList.isEmpty()) {
-                result = userProfileList.stream().map(UserProfileDTO::new).toList();
+                result = userProfileList.stream().map(userProfile -> UserProfileShortDTO.builder()
+                        .email(userProfile.getEmail())
+                        .fullName(userProfile.getFullName())
+                        .login(userProfile.getLogin())
+                        .id(userProfile.getId())
+                        .build()
+                ).toList();
                 return result;
             }
         }
@@ -216,7 +222,11 @@ public class UserProfileService {
         }
         return profiles.stream()
                 .sorted(Comparator.comparing(UserProfile::getId))
-                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail()))
+                .map(profile -> UserProfileShortDTO.builder()
+                        .email(profile.getEmail())
+                        .fullName(profile.getFullName())
+                        .id(profile.getId())
+                        .build())
                 .toList();
     }
 
@@ -231,7 +241,11 @@ public class UserProfileService {
             throw new IllegalArgumentException("400 передан несуществующий пользователь");
         }
         return userProfile.stream()
-                .map(profile -> new UserProfileShortDTO(profile.getId(), profile.getFullName(), profile.getEmail()))
+                .map(profile -> UserProfileShortDTO.builder()
+                        .email(profile.getEmail())
+                        .fullName(profile.getFullName())
+                        .id(profile.getId())
+                        .build())
                 .collect(Collectors.toList());
     }
 }
