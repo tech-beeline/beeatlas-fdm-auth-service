@@ -32,7 +32,7 @@ public class UserController {
     @ResponseBody
     @ApiOperation(value = "Получение профилей по списку id")
     @GetMapping()
-    public ResponseEntity <List<UserProfileDTO>> getUserProfileByIdIn(@RequestParam List<Integer> ids) {
+    public ResponseEntity <List<UserProfileShortDTO>> getUserProfileByIdIn(@RequestParam List<Integer> ids) {
         return ResponseEntity.ok(userProfileService.findProfileByIdIn(ids));
     }
 
