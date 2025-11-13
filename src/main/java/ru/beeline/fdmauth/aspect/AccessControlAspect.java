@@ -23,7 +23,8 @@ public class AccessControlAspect {
     public Object checkAdminAccess(ProceedingJoinPoint joinPoint) throws Throwable {
         String userRoles = validateHeaders();
         List<String> roles = Arrays.stream(userRoles.split(","))
-                .map(String::trim)
+                .map(role -> role.replaceAll("^[\\s\\W]+|[\\s\\W]+$", ""))
+                .filter(role -> !role.isEmpty())
                 .toList();
         boolean isAdmin = roles.contains("ADMINISTRATOR");
         if (!isAdmin) {
