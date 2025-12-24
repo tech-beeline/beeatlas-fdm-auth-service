@@ -196,6 +196,22 @@ public class UserProfileService {
         return permissionTypes.stream().toList();
     }
 
+    public List<UserProfileShortDTO> getAllUserProfileFdm() {
+        List<UserProfileShortDTO> result = new ArrayList<>();
+        List<UserProfile> userProfileList = userProfileRepository.findAll();
+        if (!userProfileList.isEmpty()) {
+            result = userProfileList.stream().map(userProfile -> UserProfileShortDTO.builder()
+                    .email(userProfile.getEmail())
+                    .fullName(userProfile.getFullName())
+                    .login(userProfile.getLogin())
+                    .id(userProfile.getId())
+                    .build()
+            ).toList();
+            return result;
+        }
+        return result;
+    }
+
     @Transactional(transactionManager = "transactionManager")
     public UserProfile createNewUserAndProducts(String login, String email, String fullName, String idExt) {
         UserProfile newUser = createUser(idExt, fullName, login, email);
