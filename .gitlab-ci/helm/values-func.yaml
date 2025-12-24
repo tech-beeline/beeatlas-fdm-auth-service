@@ -21,3 +21,9 @@ ingress:
     nginx.ingress.kubernetes.io/cors-allow-methods: GET, POST, PUT, DELETE, OPTIONS
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     nginx.ingress.kubernetes.io/enable-cors: 'true'
+
+resources:
+  limits:
+    memory: 1500Mi
+  requests:
+    memory: 300Mi
