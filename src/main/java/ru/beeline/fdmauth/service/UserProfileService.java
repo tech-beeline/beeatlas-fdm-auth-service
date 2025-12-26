@@ -92,7 +92,7 @@ public class UserProfileService {
     public UserProfile createUser(String idExt, String fullName, String login, String email) {
         UserProfile newUser = UserProfile.builder()
                 .idExt(idExt)
-                .fullName(fullName)
+                .fullName(decodeUnicodeSmart(fullName))
                 .login(login)
                 .lastLogin(new Date(System.currentTimeMillis()))
                 .email(email)
@@ -100,6 +100,26 @@ public class UserProfileService {
         log.info("Create new User:" + newUser);
         userProfileRepository.save(newUser);
         return newUser;
+    }
+
+    public static String decodeUnicodeSmart(String input) {
+        if (input == null) return null;
+
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < input.length(); ) {
+            if (i + 4 < input.length() &&
+                    input.charAt(i) == 'u' &&
+                    input.substring(i + 1, i + 5).matches("[0-9a-fA-F]{4}")) {
+
+                int code = Integer.parseInt(input.substring(i + 1, i + 5), 16);
+                result.append((char) code);
+                i += 5;
+            } else {
+                result.append(input.charAt(i));
+                i++;
+            }
+        }
+        return result.toString();
     }
 
     public UserProfile findUserById(Integer id) {
