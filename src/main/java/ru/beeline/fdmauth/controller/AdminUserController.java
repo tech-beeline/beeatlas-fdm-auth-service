@@ -11,12 +11,12 @@ import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.PermissionDTO;
+import ru.beeline.fdmauth.dto.UserInfoDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserProfileService;
-import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
 
 import java.util.ArrayList;
 import java.util.HashSet;

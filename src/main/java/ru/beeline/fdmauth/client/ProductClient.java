@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.UserRoles;
 import ru.beeline.fdmauth.dto.ProductDTO;
-import ru.beeline.fdmlib.dto.product.ProductPutDto;
+import ru.beeline.fdmauth.dto.product.ProductPutDto;
 
 import java.util.List;
 

@@ -11,16 +11,12 @@ import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.domain.RolePermission;
 import ru.beeline.fdmauth.domain.UserProfile;
 import ru.beeline.fdmauth.domain.UserRoles;
-import ru.beeline.fdmauth.dto.ProductDTO;
-import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmauth.dto.*;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
 import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.exception.UserNotFoundException;
 import ru.beeline.fdmauth.repository.RoleRepository;
 import ru.beeline.fdmauth.repository.UserProfileRepository;
-import ru.beeline.fdmlib.dto.auth.PermissionTypeDTO;
-import ru.beeline.fdmlib.dto.auth.UserInfoDTO;
-import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
 
 import java.sql.Date;
 import java.util.*;

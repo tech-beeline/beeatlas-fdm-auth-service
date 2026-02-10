@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.aspect.AccessControl;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
+import ru.beeline.fdmauth.dto.UserProfileShortDTO;
 import ru.beeline.fdmauth.service.UserProfileService;
-import ru.beeline.fdmlib.dto.auth.UserProfileShortDTO;
 
 import java.util.List;
 
