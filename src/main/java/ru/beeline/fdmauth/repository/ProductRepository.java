@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
 package ru.beeline.fdmauth.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
