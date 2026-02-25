@@ -1,0 +1,57 @@
+services:
+  fdm-auth-postgres:
+    image: postgres:15-alpine
+    container_name: fdm-auth-postgres
+    environment:
+      POSTGRES_DB: ${FDM_AUTH_POSTGRES_DB:-fdm-auth}
+      POSTGRES_USER: ${FDM_AUTH_POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${FDM_AUTH_POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "${FDM_AUTH_POSTGRES_NODEPORT:-5432}:5432"
+    volumes:
+      - fdm-auth-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${FDM_AUTH_POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - beeatlas-network
+
+  fdm-auth-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fdm-auth-backend-app
+    depends_on:
+      fdm-auth-postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${FDM_AUTH_POSTGRES_HOST:-fdm-auth-postgres}:5432/${FDM_AUTH_POSTGRES_DB:-fdm-auth}
+      SPRING_DATASOURCE_USERNAME: ${FDM_AUTH_POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${FDM_AUTH_POSTGRES_PASSWORD:-postgres}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: user_auth
+      SPRING_FLYWAY_DEFAULT_SCHEMA: user_auth
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      SPRING_FLYWAY_CLEAN_DISABLED: "true"
+      INTEGRATION_NOTIFICATION_SERVER_URL: "http://notification-service" # добавить адрес
+      INTEGRATION_DOCUMENT_SERVER_URL: "https://document-service" # добавить адрес
+      INTEGRATION_PRODUCTS_SERVER_URL: "https://products-service" # добавить адрес
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+    ports:
+      - "${FDM_AUTH_SERVICE_PORT:-8081}:8080"
+    networks:
+      - beeatlas-network
+    restart: unless-stopped
+
+networks:
+  beeatlas-network:
+    driver: bridge
+
+volumes:
+  fdm-auth-postgres:
