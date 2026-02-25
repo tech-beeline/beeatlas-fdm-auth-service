@@ -1,1 +1,1 @@
-# fdm-auth
+# beeatlas-fdm-auth-service
