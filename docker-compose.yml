@@ -35,9 +35,12 @@ services:
       SPRING_FLYWAY_DEFAULT_SCHEMA: user_auth
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
       SPRING_FLYWAY_CLEAN_DISABLED: "true"
-      INTEGRATION_NOTIFICATION_SERVER_URL: "http://notification-service" # добавить адрес
-      INTEGRATION_DOCUMENT_SERVER_URL: "https://document-service" # добавить адрес
       INTEGRATION_PRODUCTS_SERVER_URL: "https://products-service" # добавить адрес
+      GWURL: "http://gateway-url" #  заменить на URL gateway
+      AUTHBASIC: "Basic xxxxxxxx" # заменить на реальные креды
+      TECHUSER: "tech-user" # заменить на логин техпользователя
+      TECHPASSWORD: "tech-password" # заменить на пароль техпользователя
+      OTEL_EXPORTER_OTLP_ENDPOINT:  # заменить на URL OTEL
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 5s
