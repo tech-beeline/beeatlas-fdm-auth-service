@@ -144,4 +144,5 @@ public class AdminUserController {
                                                    @RequestParam String idExt) {
         return ResponseEntity.ok(userProfileService.getUserInfo(login, email, fullName, idExt));
     }
+
 }
