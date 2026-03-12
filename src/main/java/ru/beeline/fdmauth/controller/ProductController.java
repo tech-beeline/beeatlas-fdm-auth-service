@@ -50,4 +50,5 @@ public class ProductController {
     public ResponseEntity<List<Product>> getUserProducts(@RequestHeader(value = USER_ID_HEADER, required = false) String userId) {
         return ResponseEntity.ok(productService.findProductsByUserId(Integer.valueOf(userId)));
     }
+
 }
