@@ -51,17 +51,15 @@ public class UserProfileService {
     public UserInfoDTO getUserInfo(String login, String email, String fullName, String idExt) {
         validateFields(login, email, fullName, idExt);
         log.info("login is " + login);
+        if (login.equals("default")) {
+            login = "defaultUser";
+        }
         UserProfile userProfile = findProfileByLogin(login);
         List<Long> productIds = new ArrayList<>();
         if (userProfile == null) {
             log.info("userProfile is null, create new");
             userProfile = createNewUserAndProducts(login, email, fullName, idExt);
-            if (email.equals("default@beeline.ru")) {
-                log.info("Создан дефолтный юзер с правами ADMIN");
-                addAdminRole(userProfile);
-            } else {
                 addDefaultRole(userProfile);
-            }
             userProfile = findUserById(userProfile.getId());
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
@@ -244,11 +242,6 @@ public class UserProfileService {
 
     public void addDefaultRole(UserProfile newUser) {
         roleService.saveRolesByIds(newUser, Collections.singletonList(DEFAULT_ROLE_ID));
-        userProfileRepository.save(newUser);
-    }
-
-    public void addAdminRole(UserProfile newUser) {
-        roleService.saveRolesByIds(newUser, Collections.singletonList(ADMINISTRATOR_ROLE_ID));
         userProfileRepository.save(newUser);
     }
 
