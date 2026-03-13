@@ -249,6 +249,11 @@ public class UserProfileService {
         userProfileRepository.save(newUser);
     }
 
+    public void addAdminRole(UserProfile newUser) {
+        roleService.saveRolesByIds(newUser, Collections.singletonList(ADMINISTRATOR_ROLE_ID));
+        userProfileRepository.save(newUser);
+    }
+
     public String getEmailById(Integer userId) {
         return findUserById(userId).getEmail();
     }
