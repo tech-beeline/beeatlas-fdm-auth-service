@@ -28,6 +28,8 @@ public class UserProfileService {
 
     Long DEFAULT_ROLE_ID = 1L;
 
+    Long ADMINISTRATOR_ROLE_ID = 2L;
+
     @Autowired
     private UserProfileRepository userProfileRepository;
 
@@ -54,7 +56,12 @@ public class UserProfileService {
         if (userProfile == null) {
             log.info("userProfile is null, create new");
             userProfile = createNewUserAndProducts(login, email, fullName, idExt);
-            addDefaultRole(userProfile);
+            if (email.equals("default@beeline.ru")) {
+                log.info("Создан дефолтный юзер с правами ADMIN");
+                addAdminRole(userProfile);
+            } else {
+                addDefaultRole(userProfile);
+            }
             userProfile = findUserById(userProfile.getId());
             log.info("userProfile has been created with id=" + userProfile.getId());
         }
@@ -237,6 +244,11 @@ public class UserProfileService {
 
     public void addDefaultRole(UserProfile newUser) {
         roleService.saveRolesByIds(newUser, Collections.singletonList(DEFAULT_ROLE_ID));
+        userProfileRepository.save(newUser);
+    }
+
+    public void addAdminRole(UserProfile newUser) {
+        roleService.saveRolesByIds(newUser, Collections.singletonList(ADMINISTRATOR_ROLE_ID));
         userProfileRepository.save(newUser);
     }
 
