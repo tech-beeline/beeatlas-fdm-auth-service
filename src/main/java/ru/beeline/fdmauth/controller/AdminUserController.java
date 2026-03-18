@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 @RestController
 @RequestMapping("/api/admin/v1/user")

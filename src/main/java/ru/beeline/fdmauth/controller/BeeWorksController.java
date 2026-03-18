@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.beeline.fdmauth.dto.bw.EmployeeProductsDTO;
 import ru.beeline.fdmauth.client.BWEmployeeClient;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/bw")
 @Api(value = "BeeWorks API", tags = "BeeWorks")

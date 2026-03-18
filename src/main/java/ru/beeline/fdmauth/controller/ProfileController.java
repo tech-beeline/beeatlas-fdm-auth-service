@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.beeline.fdmauth.dto.EmailResponseDTO;
 import ru.beeline.fdmauth.service.UserProfileService;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/v1/profiles")
 @Api(value = "BeeWorks API", tags = "BeeWorks")

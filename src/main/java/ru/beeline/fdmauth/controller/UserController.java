@@ -17,7 +17,6 @@ import ru.beeline.fdmauth.service.UserProfileService;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @Slf4j
 @RestController
 @RequestMapping("/api/v1")

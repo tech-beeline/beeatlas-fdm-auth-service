@@ -22,7 +22,6 @@ import ru.beeline.fdmauth.dto.PermissionDTO;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/admin/v1/roles")
 @Api(value = "Role API", tags = "Role")

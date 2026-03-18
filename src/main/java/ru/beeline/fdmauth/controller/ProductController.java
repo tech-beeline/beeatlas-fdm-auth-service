@@ -18,7 +18,6 @@ import java.util.List;
 
 import static ru.beeline.fdmauth.utils.Constant.USER_ID_HEADER;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api")
 @Api(value = "Product API", tags = "Product")

@@ -14,7 +14,6 @@ import ru.beeline.fdmauth.service.PermissionService;
 import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
 @RequestMapping("/api/admin/v1/permissions")
 @Api(value = "Permission API", tags = "Permission")
