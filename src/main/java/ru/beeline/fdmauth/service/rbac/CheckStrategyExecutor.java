@@ -143,9 +143,10 @@ public class CheckStrategyExecutor {
         try {
             JsonNode val = objectMapper.readTree(bodyJson).findValue(check.getParamKey());
             Long extractedId = (val == null || val.isNull()) ? null : val.asLong();
-            boolean result = extractedId != null
-                    && userInfo.getProductsIds() != null
-                    && userInfo.getProductsIds().contains(extractedId);
+            // productId в теле отсутствует — сущность создаётся/редактируется без продукта,
+            // членство в продукте в этом случае проверять не по чему, пропускаем (ALLOW).
+            boolean result = extractedId == null
+                    || (userInfo.getProductsIds() != null && userInfo.getProductsIds().contains(extractedId));
             log.info("PRODUCT_MEMBER_FROM_BODY: paramKey={} extractedId={} userProductIds={} -> {}",
                     check.getParamKey(), extractedId, userInfo.getProductsIds(), result ? "ALLOW" : "DENY");
             return result;
