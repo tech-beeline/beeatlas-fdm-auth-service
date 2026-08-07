@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2024 PJSC VimpelCom
+ */
+
+package ru.beeline.fdmauth.dto;
+
+import lombok.*;
+
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@Builder
+public class UserInfoDTO {
+
+    private Integer id;
+    private List<Long> productsIds;
+
+    private List<String> roles;
+
+    private List<PermissionTypeDTO> permissions;
+
+    // used by check strategies — plain strings populated from authorize request
+    private List<String> permissionNames;
+
+}
