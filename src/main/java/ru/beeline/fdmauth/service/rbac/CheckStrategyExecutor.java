@@ -34,6 +34,7 @@ public class CheckStrategyExecutor {
         boolean result;
         switch (check.getCheckType().getName()) {
             case "PRODUCT_MEMBER":              result = checkProductMember(userInfo); break;
+            case "PRODUCT_MEMBER_FROM_PATH":    result = checkProductMemberFromPath(check, userInfo, pathVars); break;
             case "INDIRECT_PRODUCT_MEMBER":     result = checkIndirectProductMember(userInfo, pathVars, queryParams); break;
             case "AUTHOR":                      result = checkAuthor(userInfo, pathVars, queryParams); break;
             case "OWNER":                       result = checkOwner(userInfo, pathVars, queryParams); break;
@@ -54,6 +55,26 @@ public class CheckStrategyExecutor {
     private boolean checkProductMember(UserInfoDTO userInfo) {
         log.warn("PRODUCT_MEMBER not yet implemented");
         return false;
+    }
+
+    private boolean checkProductMemberFromPath(CheckGroup check, UserInfoDTO userInfo, Map<String, String> pathVars) {
+        if (check.getParamKey() == null) {
+            log.warn("PRODUCT_MEMBER_FROM_PATH: paramKey is null");
+            return false;
+        }
+        String idStr = pathVars.get(check.getParamKey());
+        if (idStr == null) {
+            log.warn("PRODUCT_MEMBER_FROM_PATH: path var '{}' missing", check.getParamKey());
+            return false;
+        }
+        Long productId;
+        try {
+            productId = Long.parseLong(idStr);
+        } catch (NumberFormatException e) {
+            log.warn("PRODUCT_MEMBER_FROM_PATH: path var '{}' is not numeric: {}", check.getParamKey(), idStr);
+            return false;
+        }
+        return userInfo.getProductsIds() != null && userInfo.getProductsIds().contains(productId);
     }
 
     private boolean checkIndirectProductMember(UserInfoDTO userInfo, Map<String, String> pathVars, Map<String, String> queryParams) {
