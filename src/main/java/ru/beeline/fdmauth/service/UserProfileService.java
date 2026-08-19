@@ -126,10 +126,8 @@ public class UserProfileService {
         if (users == null || users.isEmpty()) {
             throw new IllegalArgumentException("Не переданы обязательные параметры");
         }
-
         Role defaultRole = roleRepository.findById(DEFAULT_ROLE_ID)
                 .orElseThrow(() -> new EntityNotFoundException("404 Роль по умолчанию не найдена"));
-
         List<CreateUserResponseDTO> result = new ArrayList<>();
         for (CreateUserRequestDTO req : users) {
             if (req == null
@@ -138,45 +136,57 @@ public class UserProfileService {
             ) {
                 throw new IllegalArgumentException("Не переданы обязательные параметры");
             }
-
             UserProfile existing = userProfileRepository.findByLogin(req.getLogin());
             if (existing != null) {
-                result.add(CreateUserResponseDTO.builder()
-                        .login(req.getLogin())
-                        .fullName(req.getFullName())
-                        .idExt(req.getIdExt())
-                        .email(req.getEmail())
-                        .id(existing.getId())
-                        .build());
+                result.add(buildResponse(req, existing.getId()));
                 continue;
             }
-
-            UserProfile newUser = UserProfile.builder()
-                    .idExt(req.getIdExt())
-                    .fullName(decodeUnicodeSmart(req.getFullName()))
-                    .login(req.getLogin())
-                    .lastLogin(new Date(System.currentTimeMillis()))
-                    .email(req.getEmail())
-                    .build();
-            userProfileRepository.saveAndFlush(newUser);
-
-            UserRoles defaultUserRole = UserRoles.builder()
-                    .userProfile(newUser)
-                    .role(defaultRole)
-                    .build();
-            userRolesRepository.save(defaultUserRole);
-
-            productService.updateProducts(newUser);
-
-            result.add(CreateUserResponseDTO.builder()
-                    .login(req.getLogin())
-                    .fullName(req.getFullName())
-                    .idExt(req.getIdExt())
-                    .email(req.getEmail())
-                    .id(newUser.getId())
-                    .build());
+            UserProfile updateProfile = userProfileRepository.findByIdExt(req.getIdExt());
+            if (updateProfile != null) {
+                updateExistingUser(updateProfile, req);
+                result.add(buildResponse(req, updateProfile.getId()));
+                continue;
+            }
+            UserProfile newUser = createNewUser(req, defaultRole);
+            result.add(buildResponse(req, newUser.getId()));
         }
         return result;
+    }
+
+    private void updateExistingUser(UserProfile updateProfile, CreateUserRequestDTO req) {
+        log.info("userProfile с ext_id: {} найден, обновляем данные.", req.getIdExt());
+        updateProfile.setLogin(req.getLogin());
+        updateProfile.setEmail(req.getEmail());
+        updateProfile.setFullName(decodeUnicodeSmart(req.getFullName()));
+        userProfileRepository.saveAndFlush(updateProfile);
+    }
+
+    private UserProfile createNewUser(CreateUserRequestDTO req, Role defaultRole) {
+        UserProfile newUser = UserProfile.builder()
+                .idExt(req.getIdExt())
+                .fullName(decodeUnicodeSmart(req.getFullName()))
+                .login(req.getLogin())
+                .lastLogin(new Date(System.currentTimeMillis()))
+                .email(req.getEmail())
+                .build();
+        userProfileRepository.saveAndFlush(newUser);
+        UserRoles defaultUserRole = UserRoles.builder()
+                .userProfile(newUser)
+                .role(defaultRole)
+                .build();
+        userRolesRepository.save(defaultUserRole);
+        productService.updateProducts(newUser);
+        return newUser;
+    }
+
+    private CreateUserResponseDTO buildResponse(CreateUserRequestDTO req, Integer userId) {
+        return CreateUserResponseDTO.builder()
+                .login(req.getLogin())
+                .fullName(req.getFullName())
+                .idExt(req.getIdExt())
+                .email(req.getEmail())
+                .id(userId)
+                .build();
     }
 
     public static String decodeUnicodeSmart(String input) {
