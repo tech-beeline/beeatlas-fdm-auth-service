@@ -57,22 +57,6 @@ public class CxClient {
         }
     }
 
-    public boolean checkCjProductMember(Long cjId, List<Long> productIds) {
-        try {
-            UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(baseUrl + "/api/cx/v1/internal/check/cj/{id}/product-member")
-                    .uriVariables(java.util.Map.of("id", cjId));
-            for (Long pid : productIds) {
-                builder.queryParam("productIds", pid);
-            }
-            HasAccessDTO result = restTemplate.getForObject(builder.toUriString(), HasAccessDTO.class);
-            return result != null && result.isHasAccess();
-        } catch (Exception e) {
-            log.warn("CJ_PRODUCT_MEMBER check failed for cj={}: {}", cjId, e.getMessage());
-            return false;
-        }
-    }
-
     public boolean checkBiEditAccess(Long biId, List<Long> productIds) {
         try {
             UriComponentsBuilder builder = UriComponentsBuilder
@@ -89,35 +73,5 @@ public class CxClient {
         }
     }
 
-    public boolean checkCjEditAccess(Long cjId, List<Long> productIds) {
-        try {
-            UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(baseUrl + "/api/cx/v1/internal/check/cj/{id}/edit-access")
-                    .uriVariables(java.util.Map.of("id", cjId));
-            for (Long pid : productIds) {
-                builder.queryParam("productIds", pid);
-            }
-            HasAccessDTO result = restTemplate.getForObject(builder.toUriString(), HasAccessDTO.class);
-            return result != null && result.isHasAccess();
-        } catch (Exception e) {
-            log.warn("CJ_EDIT_PRODUCT_MEMBER check failed for cj={}: {}", cjId, e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean checkCjStepProductMember(Long stepId, List<Long> productIds) {
-        try {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/cx/v1/internal/check/cj-step/{id}/product-member")
-                    .uriVariables(java.util.Map.of("id", stepId));
-            for (Long pid : productIds) {
-                builder.queryParam("productIds", pid);
-            }
-            HasAccessDTO result = restTemplate.getForObject(builder.toUriString(), HasAccessDTO.class);
-            return result != null && result.isHasAccess();
-        } catch (Exception e) {
-            log.warn("CJ_STEP_PRODUCT_MEMBER check failed for step={}: {}", stepId, e.getMessage());
-            return false;
-        }
-    }
 }
 
