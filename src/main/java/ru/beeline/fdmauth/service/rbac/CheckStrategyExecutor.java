@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.beeline.fdmauth.client.CapabilityClient;
 import ru.beeline.fdmauth.client.CxClient;
 import ru.beeline.fdmauth.client.FdmBpmClient;
+import ru.beeline.fdmauth.client.ProjectClient;
 import ru.beeline.fdmauth.domain.rbac.CheckGroup;
 import ru.beeline.fdmauth.dto.UserInfoDTO;
 
@@ -25,6 +26,7 @@ public class CheckStrategyExecutor {
 
     private final CxClient cxClient;
     private final CapabilityClient capabilityClient;
+    private final ProjectClient projectClient;
     private final FdmBpmClient fdmBpmClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -44,6 +46,7 @@ public class CheckStrategyExecutor {
             case "BC_ORDER_DRAFT_OWNER":        result = checkBcOrderDraftOwner(userInfo, pathVars); break;
             case "APPLICATION_AUTHOR_OR_EXECUTOR": result = checkApplicationAuthorOrExecutor(userInfo, pathVars); break;
             case "APPLICATION_CURRENT_EXECUTOR":   result = checkApplicationCurrentExecutor(userInfo, pathVars); break;
+            case "PROJECT_OWNER_FROM_BODY":      result = checkProjectOwnerFromBody(check, userInfo, bodyJson); break;
             default:
                 log.warn("Unknown check type: {}, returning false", check.getCheckType().getName());
                 result = false;
@@ -173,6 +176,32 @@ public class CheckStrategyExecutor {
             return result;
         } catch (Exception e) {
             log.warn("PRODUCT_MEMBER_FROM_BODY: failed to parse body for key='{}': {}", check.getParamKey(), e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean checkProjectOwnerFromBody(CheckGroup check, UserInfoDTO userInfo, String bodyJson) {
+        if (bodyJson == null || check.getParamKey() == null) {
+            log.warn("PROJECT_OWNER_FROM_BODY: bodyJson or paramKey is null, paramKey={}", check.getParamKey());
+            return false;
+        }
+        if (userInfo.getId() == null) {
+            log.warn("PROJECT_OWNER_FROM_BODY: userId is null");
+            return false;
+        }
+        try {
+            JsonNode val = objectMapper.readTree(bodyJson).findValue(check.getParamKey());
+            if (val == null || val.isNull()) {
+                log.warn("PROJECT_OWNER_FROM_BODY: key '{}' not found in body", check.getParamKey());
+                return false;
+            }
+            int projectId = val.asInt();
+            boolean result = projectClient.checkProjectOwner(projectId, userInfo.getId());
+            log.info("PROJECT_OWNER_FROM_BODY: paramKey={} projectId={} userId={} -> {}",
+                    check.getParamKey(), projectId, userInfo.getId(), result ? "ALLOW" : "DENY");
+            return result;
+        } catch (Exception e) {
+            log.warn("PROJECT_OWNER_FROM_BODY: failed to parse body for key='{}': {}", check.getParamKey(), e.getMessage());
             return false;
         }
     }
