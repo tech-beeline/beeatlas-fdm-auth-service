@@ -11,4 +11,6 @@ public class Constant {
     public static final String USER_ROLES_HEADER = "user-roles";
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String DATE_TIMEZONE = "Europe/Moscow";
+    public static final String RESOURCE_NOT_FOUND_MESSAGE = "ресурс по данному пути не найден";
+    public static final String INTERNAL_SERVER_ERROR_MESSAGE = "Внутренняя ошибка сервера";
 }

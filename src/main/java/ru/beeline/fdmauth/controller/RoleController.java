@@ -17,6 +17,7 @@ import ru.beeline.fdmauth.domain.Permission;
 import ru.beeline.fdmauth.domain.Role;
 import ru.beeline.fdmauth.dto.role.RoleCreateDTO;
 import ru.beeline.fdmauth.dto.role.RoleDTO;
+import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.dto.PermissionDTO;
 import java.util.List;
@@ -81,9 +82,7 @@ public class RoleController {
         if(currentRoleOpt.isPresent()) {
             return ResponseEntity.ok(currentRoleOpt.get());
         } else {
-            String errText = String.format("404 Роль c id='%d' не найдена", id);
-            log.error(errText);
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Роль c id='%d' не найдена", id));
         }
     }
 
@@ -110,9 +109,7 @@ public class RoleController {
                     return ResponseEntity.ok().build();
                 }
             } else {
-                String errText = String.format("404 Роль c id='%d' не найдена", id);
-                log.error(errText);
-                return ResponseEntity.notFound().build();
+                throw new EntityNotFoundException(String.format("Роль c id='%d' не найдена", id));
             }
         }
     }
@@ -131,9 +128,7 @@ public class RoleController {
         if(currentRoleOpt.isPresent()) {
             return ResponseEntity.ok(roleService.getPermissionsWithStatus(id));
         } else {
-            String errText = String.format("404 Роль c id='%d' не найдена", id);
-            log.error(errText);
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Роль c id='%d' не найдена", id));
         }
     }
 
@@ -162,9 +157,7 @@ public class RoleController {
             roleService.saveRolePermissions(role, permissions);
             return ResponseEntity.ok(roleService.getPermissions(role.getId()));
         } else {
-            String errText = String.format("404 Роль c id='%d' не найдена", id);
-            log.error(errText);
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Роль c id='%d' не найдена", id));
         }
     }
 

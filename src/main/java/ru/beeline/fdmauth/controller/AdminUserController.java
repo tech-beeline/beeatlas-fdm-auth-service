@@ -18,6 +18,7 @@ import ru.beeline.fdmauth.dto.PermissionDTO;
 import ru.beeline.fdmauth.dto.UserInfoDTO;
 import ru.beeline.fdmauth.dto.UserProfileDTO;
 import ru.beeline.fdmauth.dto.role.RoleInfoDTO;
+import ru.beeline.fdmauth.exception.EntityNotFoundException;
 import ru.beeline.fdmauth.service.PermissionService;
 import ru.beeline.fdmauth.service.RoleService;
 import ru.beeline.fdmauth.service.UserProfileService;
@@ -74,8 +75,7 @@ public class AdminUserController {
         if (userProfileDTO != null) {
             return ResponseEntity.ok(userProfileDTO);
         } else {
-            log.error(String.format("404 Пользователь c login '%s' не найден", login));
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Пользователь c login '%s' не найден", login));
         }
     }
 
@@ -86,8 +86,7 @@ public class AdminUserController {
     public ResponseEntity<List<RoleInfoDTO>> getUserProfileRoles(@PathVariable String login) {
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
         if (userProfile == null) {
-            log.error(String.format("404 Пользователь c login '%s' не найден", login));
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Пользователь c login '%s' не найден", login));
         }
         List<UserRoles> userRoles = userProfileService.getUserRolesWithPermissions(userProfile);
         return ResponseEntity.ok(RoleInfoDTO.convert(userRoles));
@@ -100,8 +99,7 @@ public class AdminUserController {
     public ResponseEntity<Set<PermissionDTO>> getUserProfilePermissions(@PathVariable String login) {
         UserProfile userProfile = userProfileService.findProfileByLogin(login);
         if (userProfile == null) {
-            log.error(String.format("404 Пользователь c login '%s' не найден", login));
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Пользователь c login '%s' не найден", login));
         }
         List<UserRoles> userRoles = userProfileService.getUserRolesWithPermissions(userProfile);
         Set<Permission> rPermissions = new HashSet<>();
@@ -124,8 +122,7 @@ public class AdminUserController {
         if (userProfile != null) {
             return ResponseEntity.ok(userProfileService.setRoles(userProfile, roles));
         } else {
-            log.error(String.format("404 Пользователь c login '%s' не найден", login));
-            return ResponseEntity.notFound().build();
+            throw new EntityNotFoundException(String.format("Пользователь c login '%s' не найден", login));
         }
     }
 
